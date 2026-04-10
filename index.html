@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor | Beta 0.4</title>
+  <title>Wayne Manor | Beta 0.45</title>
   <style>
     body {
       background-color: #000000;
@@ -101,7 +101,8 @@
       object-fit: contain;
       box-shadow: 0 0 50px rgba(0,0,0,1);
       cursor: zoom-out;
-      transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+      opacity: 1;
+      transition: opacity 0.6s ease-in-out;
     }
 
     #lightbox-subtitle {
@@ -117,6 +118,8 @@
       font-weight: 300;
       animation: subtitleFadeIn 1.2s ease;
       pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.6s ease-in-out;
     }
 
     @keyframes fadeIn {
@@ -132,6 +135,13 @@
     @keyframes subtitleFadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @media (min-width: 768px) {
+      @keyframes subtitleFadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
     }
 
     .footer-hint {
@@ -153,7 +163,7 @@
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.4</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.45</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
@@ -185,6 +195,7 @@
     let touchstartX = 0;
     let touchstartY = 0;
     let startTime = 0;
+    let isTransitioning = false;
 
     const galleryContainer = document.getElementById('gallery');
     const lightbox = document.getElementById('lightbox');
@@ -208,7 +219,7 @@
 
     function openLightbox(index) {
       currentIndex = index;
-      updateLightboxContent();
+      updateLightboxContentImmediately();
       lightbox.style.display = 'flex';
       document.body.style.overflow = 'hidden'; 
     }
@@ -218,20 +229,45 @@
       document.body.style.overflow = '';
     }
 
-    function updateLightboxContent() {
+    function updateLightboxContentImmediately() {
       const item = galleryData[currentIndex];
+      lightboxImg.style.opacity = '1';
+      lightboxSubtitle.style.opacity = '1';
       lightboxImg.src = item.src;
       lightboxSubtitle.innerText = item.text;
     }
 
+    async function changeSlideWithAnimation(newIndex) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      lightboxImg.style.opacity = '0';
+      lightboxSubtitle.style.opacity = '0';
+
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      currentIndex = newIndex;
+      const item = galleryData[currentIndex];
+      lightboxImg.src = item.src;
+      lightboxSubtitle.innerText = item.text;
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      lightboxImg.style.opacity = '1';
+      lightboxSubtitle.style.opacity = '1';
+
+      await new Promise(resolve => setTimeout(resolve, 600));
+      isTransitioning = false;
+    }
+
     function showNext() {
-      currentIndex = (currentIndex + 1) % galleryData.length;
-      updateLightboxContent();
+      const nextIndex = (currentIndex + 1) % galleryData.length;
+      changeSlideWithAnimation(nextIndex);
     }
 
     function showPrev() {
-      currentIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
-      updateLightboxContent();
+      const prevIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
+      changeSlideWithAnimation(prevIndex);
     }
 
     lightbox.addEventListener('touchstart', (e) => {
