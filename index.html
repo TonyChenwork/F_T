@@ -1,218 +1,204 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wayne Manor | 档案 0.1</title>
-    <style>
-        /* 极致的暗黑高级感 - 诺兰调色盘 */
-        body {
-            background-color: #000000; /* 纯黑，更肃杀 */
-            color: #ffffff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Wayne Manor | Beta 0.35</title>
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 15px;
+      overflow-x: hidden;
+    }
 
-        /* 顶部宣言 - 模仿机密文件头 */
-        .gallery-header {
-            text-align: center;
-            padding: 50px 0 40px 0;
-            border-bottom: 1px solid #111; /* 隐约的分割线 */
-            margin-bottom: 30px;
-        }
-        .hero-title {
-            font-size: 1.4rem;
-            letter-spacing: 6px; /* 更宽的间距，更庄严 */
-            margin-bottom: 10px;
-            font-weight: 300; /* 更细，更高级 */
-            text-transform: uppercase;
-        }
-        .subtitle {
-            font-size: 0.75rem;
-            color: #555; /* 更暗淡，不抢戏 */
-            letter-spacing: 2px;
-        }
+    .gallery-header {
+      text-align: center;
+      padding: 50px 0 40px 0;
+      border-bottom: 1px solid #111;
+      margin-bottom: 30px;
+    }
 
-        /* --- 瀑布流核心 CSS --- */
-        .masonry-container {
-            column-count: 2; 
-            column-gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .hero-title {
+      font-size: 1.4rem;
+      letter-spacing: 6px;
+      margin-bottom: 10px;
+      font-weight: 300;
+      text-transform: uppercase;
+    }
 
-        @media (min-width: 768px) {
-            .masonry-container { column-count: 3; }
-        }
+    .subtitle {
+      font-size: 0.75rem;
+      color: #555;
+      letter-spacing: 2px;
+    }
 
-        /* 每张照片卡片 */
-        .photo-card {
-            break-inside: avoid;
-            margin-bottom: 15px;
-            background-color: #080808; /* 卡片底色，几乎不可见 */
-            border-radius: 4px;
-            overflow: hidden;
-            animation: fadeIn 1s ease-out;
-            cursor: zoom-in;
-            transition: all 0.3s ease;
-        }
-        
-        .photo-card:active { transform: scale(0.97); } /* 手机点击反馈 */
+    .masonry-container {
+      column-count: 2;
+      column-gap: 15px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        .photo-card img {
-            width: 100%;
-            display: block;
-            filter: contrast(1.1); /* 稍微增加对比度，增加电影感 */
-        }
+    @media (min-width: 768px) {
+      .masonry-container {
+        column-count: 3;
+      }
+    }
 
-        /* 瀑布流状态下的文案 - 保持简陋，供测试验证用 */
-        .photo-desc {
-            padding: 10px;
-            font-size: 0.75rem;
-            color: #666; /* 调暗文案，直到点击放大才清晰可见 */
-            line-height: 1.4;
-            letter-spacing: 1px;
-            text-align: center;
-        }
+    .photo-card {
+      break-inside: avoid;
+      margin-bottom: 15px;
+      background-color: #080808;
+      border-radius: 4px;
+      overflow: hidden;
+      animation: fadeIn 1s ease-out;
+      cursor: zoom-in;
+      transition: all 0.3s ease;
+    }
 
-        /* --- 灯箱（放大层）核心：诺兰美学重点 --- */
-        #lightbox {
-            display: none; 
-            position: fixed;
-            z-index: 9999;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: #000000; /* 纯黑不透明背景，完全沉浸 */
-            flex-direction: column; /* 图片在上，文字在下 */
-            align-items: center;
-            justify-content: center;
-            cursor: zoom-out;
-            animation: cinematicIn 0.4s ease;
-        }
+    .photo-card:active {
+      transform: scale(0.97);
+    }
 
-        /* 图片容器 - 制造宽画幅效果 */
-        #lightbox-img-wrap {
-            width: 100%;
-            max-height: 75vh; /* 图片占高度的 75% */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #000; /* 上下黑边 */
-        }
+    .photo-card img {
+      width: 100%;
+      display: block;
+      filter: contrast(1.1);
+    }
 
-        #lightbox img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            box-shadow: 0 0 50px rgba(0,0,0,1); /* 强化深渊感 */
-        }
+    .photo-desc {
+      padding: 10px;
+      font-size: 0.75rem;
+      color: #666;
+      line-height: 1.4;
+      letter-spacing: 1px;
+      text-align: center;
+    }
 
-        /* --- 诺兰字幕系统 --- */
-        #lightbox-subtitle {
-            width: 80%; /* 字幕不占满宽度 */
-            max-width: 600px;
-            padding: 30px 10px 50px 10px; /* 留出底部空间，模仿电影画面 */
-            text-align: center;
-            font-size: 0.9rem; /* 字幕稍大，清晰可见 */
-            color: #f0f0f0; /* 接近纯白，冷峻 */
-            line-height: 1.6;
-            letter-spacing: 2px; /* 较宽的间距，模仿电影字幕样式 */
-            font-weight: 300;
-            animation: subtitleFadeIn 1s ease; /* 字幕渐显，更有仪式感 */
-        }
+    #lightbox {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      animation: cinematicIn 0.4s ease;
+    }
 
-        /* 动画 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes cinematicIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+    #lightbox img {
+      display: block;
+      max-width: 90%;
+      max-height: 80vh;
+      object-fit: contain;
+      box-shadow: 0 0 50px rgba(0,0,0,1);
+    }
 
-        @keyframes subtitleFadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .footer-hint {
-            text-align: center;
-            font-size: 0.65rem;
-            color: #222; /* 调得极暗，几乎不可见 */
-            padding: 60px 0 30px 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-    </style>
+    #lightbox-subtitle {
+      position: absolute;
+      bottom: 8%;
+      width: 80%;
+      max-width: 600px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #f0f0f0;
+      line-height: 1.6;
+      letter-spacing: 2px;
+      font-weight: 300;
+      animation: subtitleFadeIn 1.2s ease;
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cinematicIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes subtitleFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .footer-hint {
+      text-align: center;
+      font-size: 0.65rem;
+      color: #222;
+      padding: 60px 0 30px 0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body>
 
-    <div id="lightbox" onclick="this.style.display='none'">
-        <div id="lightbox-img-wrap">
-            <img id="lightbox-img" src="" alt="Zoomed Photo">
-        </div>
-        <div id="lightbox-subtitle"></div>
-    </div>
+  <div id="lightbox" onclick="this.style.display='none'">
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-subtitle"></div>
+  </div>
 
-    <div class="gallery-header">
-        <div class="hero-title">WAYNE MANOR GALLERY</div>
-        <div class="subtitle">来自活火山与霓虹彼岸的记录 | 自动化部署测试 Beta 0.2</div>
-    </div>
+  <div class="gallery-header">
+    <div class="hero-title">WAYNE MANOR GALLERY</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.35</div>
+  </div>
 
-    <div class="masonry-container" id="gallery"></div>
+  <div class="masonry-container" id="gallery"></div>
 
-    <div class="footer-hint">Build with GitHub & Vercel | status: executing</div>
+  <div class="footer-hint">Build with GitHub & Vercel | 感谢你的见证</div>
 
-    <script>
-        const galleryData = [
-            { src: "images/Tokyo_Tower.webp", text: "所有的跋涉，都是为了抵达这个充满霓虹的彼岸。" },
-            { src: "images/lone_tree_bromo.webp", text: "在世界的边缘，忍受极致的孤独与肃杀。" },
-            { src: "images/Driver_Agung_bromo.webp", text: "在极端环境中，寻找真实的连接。" },
-            { src: "images/DSC_3275.webp", text: "大阪列车站的虚影，都市跳动的脉搏。" },
-            { src: "images/DSC_3393.webp", text: "京都二年坂，时间在这里沉淀出温度。" },
-            { src: "images/Kelingking_Beach.webp", text: "海天一色的绝景，给人以呼吸感。" },
-            { src: "images/DSC_4317.webp", text: "悬崖是陆地对海洋最后的试探，而海浪是时间留下的白边。" },
-            { src: "images/DSC_4424.webp", text: "慕士塔格的冰川藏起所有凡人的秘密。" },
-            { src: "images/Monkey_moment.webp", text: "快门按下的那一刻，不需要语言。" },
-            { src: "images/DSC_3549.webp", text: "现实和二次元只隔着一杯咖啡的距离。" },
-            { src: "images/DSC_3567.webp", text: "当暮色吞没东京湾，千万盏霓虹便开始窃窃私语。" },
-            { src: "images/DSC_4125.webp", text: "浓雾尽头，是地心沉睡的巨兽。" },
-            { src: "images/R0001257.webp", text: "诸神将未经打磨的钻石随手丢进深海。" },
-            { src: "images/DSC_1224.webp", text: "墙外是喧嚣的人间，墙上是只属于它的慵懒。" },
-            { src: "images/DSC_3371.webp", text: "走在这条街上，一不小心就会踩到旧时光的倒影。" },
-            { src: "images/DSC_3552.webp", text: "喧嚣与宁静，只隔着一条街道的距离。" },
-            { src: "images/DSC_3635.webp", text: "那一抹血红，是宇宙深处最沉默的温柔。" }
-        ];
+  <script>
+    const galleryData = [
+      { src: "images/Tokyo_Tower.webp", text: "所有的跋涉，都是为了抵达这个充满霓虹的彼岸。" },
+      { src: "images/lone_tree_bromo.webp", text: "在世界的边缘，忍受极致的孤独与肃杀。" },
+      { src: "images/Driver_Agung_bromo.webp", text: "在极端环境中，寻找真实的连接。" },
+      { src: "images/DSC_3275.webp", text: "大阪列车站的虚影，都市跳动的脉搏。" },
+      { src: "images/DSC_3393.webp", text: "京都二年坂，时间在这里沉淀出温度。" },
+      { src: "images/Kelingking_Beach.webp", text: "海天一色的绝景，给人以呼吸感。" },
+      { src: "images/DSC_4317.webp", text: "悬崖是陆地对海洋最后的试探，而海浪是时间留下的白边。在这里，连风都屏住了呼吸。" },
+      { src: "images/DSC_4424.webp", text: "慕士塔格的冰川的温柔是默默地看着这颗星球的日落，用千万年的积雪，藏起所有凡人的秘密。" },
+      { src: "images/Monkey_moment.webp", text: "快门按下的那一刻，不需要语言。在这个被框住的瞬间里，生灵的眼底藏着整个野性世界。" },
+      { src: "images/DSC_3549.webp", text: "弧形的玻璃切开光影，像是在等一场新海诚式的阵雨。只要在这个坐标，现实和二次元就只隔着一杯咖啡的距离。" },
+      { src: "images/DSC_3567.webp", text: "当暮色吞没东京湾，千万盏霓虹便开始窃窃私语。这是一座用钢铁和微光折叠起来的梦境迷宫。" },
+      { src: "images/DSC_4125.webp", text: "引擎轰鸣在黑色的火山灰上，像是在另一颗荒芜行星上的流浪。浓雾尽头，是地心沉睡的巨兽。" },
+      { src: "images/R0001257.webp", text: "诸神将未经打磨的钻石随手丢进深海，于是这片蔚蓝有了最锋利的形状。万物在这里，只剩下纯粹的蓝与白。" },
+      { src: "images/DSC_1224.webp", text: "它踩着斑驳的光影巡视自己的领地。墙外是喧嚣的人间，墙上是只属于它的慵懒午后。" },
+      { src: "images/DSC_3371.webp", text: "电线交织着京都的黄昏，灯笼正等待夜的降临。走在这条街上，一不小心就会踩到旧时光的倒影。" },
+      { src: "images/DSC_3552.webp", text: "喧嚣与宁静，只隔着一条街道的距离。" },
+      { src: "images/DSC_3635.webp", text: "一场跨越星辰的暗恋。地球在时间的流沙中，轻吻月球。那一抹血红，是宇宙深处最沉默的温柔。" }
+    ];
 
-        const galleryContainer = document.getElementById('gallery');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const lightboxSubtitle = document.getElementById('lightbox-subtitle');
+    const galleryContainer = document.getElementById('gallery');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxSubtitle = document.getElementById('lightbox-subtitle');
 
-        // 渲染画廊
-        galleryData.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'photo-card';
-            
-            // 瀑布流状态下文案依然保留，但颜色调暗，制造对比
-            card.innerHTML = `
-                <img src="${item.src}" alt="Photo" loading="lazy">
-                <div class="photo-desc">${item.text}</div>
-            `;
-            
-            // 绑定点击事件：点亮诺兰美学
-            card.addEventListener('click', function() {
-                lightboxImg.src = item.src; // 传图片
-                lightboxSubtitle.innerText = item.text; // 传字幕文案
-                lightbox.style.display = 'flex'; // 显示灯箱
-            });
-            
-            galleryContainer.appendChild(card);
-        });
-    </script>
+    galleryData.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.innerHTML = `
+        <img src="${item.src}" alt="" loading="lazy">
+        <div class="photo-desc">${item.text}</div>
+      `;
+      
+      card.addEventListener('click', function() {
+        lightboxImg.src = item.src;
+        lightboxSubtitle.innerText = item.text;
+        lightbox.style.display = 'flex';
+      });
+
+      galleryContainer.appendChild(card);
+    });
+  </script>
 </body>
 </html>
