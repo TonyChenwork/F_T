@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wayne Manor | 瀑布流影展</title>
+    <style>
+        /* 极致的暗黑高级感 */
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 15px; /* 手机端留出一点边距 */
+        }
+
+        /* 顶部宣言 */
+        .gallery-header {
+            text-align: center;
+            padding: 40px 0 30px 0;
+        }
+        .hero-title {
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: #777;
+            letter-spacing: 2px;
+        }
+
+        /* --- 瀑布流核心 CSS --- */
+        .masonry-container {
+            /* 手机端默认分为 2 列，如果你想单列大图，把这里改成 1 */
+            column-count: 2; 
+            column-gap: 15px; /* 两列之间的间距 */
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 电脑/平板屏幕变大时，自动变成 3 列 */
+        @media (min-width: 768px) {
+            .masonry-container { column-count: 3; }
+        }
+
+        /* 每张照片卡片 */
+        .photo-card {
+            break-inside: avoid; /* 核心防断裂：确保每张照片和它的文字不被强行切分到两列 */
+            margin-bottom: 15px;
+            background-color: #111; /* 卡片底色，比纯黑亮一点点 */
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            /* 加入一个极短的渐显动画，让页面加载更平滑 */
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .photo-card img {
+            width: 100%;
+            display: block; /* 消除图片底部的幽灵空白 */
+        }
+
+        .photo-desc {
+            padding: 12px 10px;
+            font-size: 0.8rem;
+            color: #b3b3b3;
+            line-height: 1.5;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .footer-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #333;
+            padding: 40px 0 20px 0;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="gallery-header">
+        <div class="hero-title">WAYNE MANOR GALLERY</div>
+        <div class="subtitle">来自活火山与霓虹彼岸的记录 | 完整版</div>
+    </div>
+
+    <div class="masonry-container" id="gallery"></div>
+
+    <div class="footer-hint">纯手工代码构建中 | 感谢见证</div>
+
+    <script>
+        // --- 核心数据库：在这里填入你的 20 张图片名字和文案 ---
+        // 格式极其简单： { src: "图片名字.jpg", text: "你要说的高级文案" }
+        const galleryData = [
+            { src: "images/Tokyo_Tower.webp", text: "所有的跋涉，都是为了抵达这个充满霓虹的彼岸。" },
+            { src: "images/lone_tree_bromo.webp", text: "在世界的边缘，忍受极致的孤独与肃杀。" },
+            { src: "images/Driver_Agung_bromo.webp", text: "在极端环境中，寻找真实的连接。" },
+            { src: "images/DSC_3275.webp", text: "大阪列车站的虚影，都市跳动的脉搏。" },
+            { src: "images/DSC_3393.webp", text: "京都二年坂，时间在这里沉淀出温度。" },
+            { src: "images/Kelingking_Beach.webp", text: "海天一色的绝景，给人以呼吸感。" },
+            { src: "images/DSC_4317.webp", text: "悬崖是陆地对海洋最后的试探，而海浪是时间留下的白边。在这里，连风都屏住了呼吸。" },
+            { src: "images/DSC_4424.webp", text: "慕士塔格的冰川的温柔是默默地看着这颗星球的日落，用千万年的积雪，藏起所有凡人的秘密。" },
+            { src: "images/Monkey_moment.webp", text: "快门按下的那一刻，不需要语言。在这个被框住的瞬间里，生灵的眼底藏着整个野性世界。" },
+            { src: "images/DSC_3549.webp", text: "弧形的玻璃切开光影，像是在等一场新海诚式的阵雨。只要在这个坐标，现实和二次元就只隔着一杯咖啡的距离。" },
+            { src: "images/DSC_3567.webp", text: "当暮色吞没东京湾，千万盏霓虹便开始窃窃私语。这是一座用钢铁和微光折叠起来的梦境迷宫。" },
+            { src: "images/DSC_4125-已增强-NR.webp", text: "引擎轰鸣在黑色的火山灰上，像是在另一颗荒芜行星上的流浪。浓雾尽头，是地心沉睡的巨兽。" },
+            { src: "images/R0001257.webp", text: "诸神将未经打磨的钻石随手丢进深海，于是这片蔚蓝有了最锋利的形状。万物在这里，只剩下纯粹的蓝与白。" },
+            { src: "images/DSC_1224.webp", text: "它踩着斑驳的光影巡视自己的领地。墙外是喧嚣的人间，墙上是只属于它的慵懒午后。" },
+            { src: "images/DSC_3371.webp", text: "电线交织着京都的黄昏，灯笼正等待夜的降临。走在这条街上，一不小心就会踩到旧时光的倒影。" },
+            { src: "images/DSC_3552.webp", text: "喧嚣与宁静，只隔着一条街道的距离。" },
+            { src: "images/DSC_3635.webp", text: "一场跨越星辰的暗恋。地球在时间的流沙中，轻吻月球。那一抹血红，是宇宙深处最沉默的温柔。" },
+            // ... 少爷，复制上面这一行，继续往下粘，凑齐 20 张！
+            // { src: "你的图.jpg", text: "你的文案" }
+        ];
+
+        // 找到容器
+        const galleryContainer = document.getElementById('gallery');
+
+        // --- 极客的高级操作：循环遍历数组，自动生成 HTML ---
+        galleryData.forEach(item => {
+            // 创建一个 div 卡片
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            
+            // 把图片和文字塞进卡片
+            // 注意 <img> 标签里的 loading="lazy"，这是防卡顿的终极神器！
+            card.innerHTML = `
+                <img src="${item.src}" alt="Wayne Manor Photo" loading="lazy">
+                <div class="photo-desc">${item.text}</div>
+            `;
+            
+            // 把卡片挂载到网页上
+            galleryContainer.appendChild(card);
+        });
+    </script>
+
+</body>
+</html>
