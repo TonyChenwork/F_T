@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor | Beta 0.5</title>
+  <title>Wayne Manor | Beta 0.51</title>
   <style>
     body {
       background-color: #000000;
@@ -43,9 +43,7 @@
     }
 
     @media (min-width: 768px) {
-      .masonry-container {
-        column-count: 3;
-      }
+      .masonry-container { column-count: 3; }
     }
 
     .photo-card {
@@ -57,10 +55,6 @@
       animation: fadeIn 1s ease-out;
       cursor: zoom-in;
       transition: all 0.3s ease;
-    }
-
-    .photo-card:active {
-      transform: scale(0.97);
     }
 
     .photo-card img {
@@ -82,26 +76,20 @@
       display: none;
       position: fixed;
       z-index: 9999;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: #000000;
       align-items: center;
       justify-content: center;
-      cursor: auto;
       animation: cinematicIn 0.4s ease;
-      overflow: hidden;
     }
 
     #lightbox img {
       display: block;
       max-width: 90%;
-      max-height: 80vh;
+      max-height: 75vh;
       object-fit: contain;
       box-shadow: 0 0 50px rgba(0,0,0,1);
-      cursor: zoom-out;
-      opacity: 1;
       transition: opacity 0.6s ease-in-out;
     }
 
@@ -117,63 +105,75 @@
       letter-spacing: 2px;
       font-weight: 300;
       pointer-events: none;
-      opacity: 1;
       transition: opacity 0.6s ease-in-out;
     }
 
-    .nav-arrow {
+    /* --- 按钮重做：毛玻璃质感 --- */
+    .nav-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 2rem;
-      color: rgba(255, 255, 255, 0.2);
-      padding: 20px;
-      user-select: none;
-      transition: opacity 1s ease;
-      font-weight: 100;
-      pointer-events: none;
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.05); /* 极淡的底色 */
+      backdrop-filter: blur(10px); /* 核心：毛玻璃效果 */
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10000;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent; /* 消除手机点击蓝框 */
     }
 
-    .arrow-left { left: 10px; }
-    .arrow-right { right: 10px; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .nav-btn:active {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-50%) scale(0.9);
     }
 
-    @keyframes cinematicIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    /* 按钮内部的箭头符号 */
+    .nav-btn::after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-top: 2px solid rgba(255, 255, 255, 0.5);
+      border-right: 2px solid rgba(255, 255, 255, 0.5);
     }
 
-    .footer-hint {
-      text-align: center;
-      font-size: 0.65rem;
-      color: #222;
-      padding: 60px 0 30px 0;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+    .btn-left { left: 20px; }
+    .btn-left::after { transform: rotate(-135deg); margin-left: 4px; }
+
+    .btn-right { right: 20px; }
+    .btn-right::after { transform: rotate(45deg); margin-right: 4px; }
+
+    @media (max-width: 768px) {
+      .nav-btn { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); } /* 手机端稍微明显一点 */
     }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cinematicIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .footer-hint { text-align: center; font-size: 0.65rem; color: #222; padding: 60px 0 30px 0; letter-spacing: 1px; text-transform: uppercase; }
   </style>
 </head>
 <body>
 
   <div id="lightbox">
-    <div class="nav-arrow arrow-left">‹</div>
-    <div class="nav-arrow arrow-right">›</div>
+    <div class="nav-btn btn-left" id="prevBtn"></div>
+    <div class="nav-btn btn-right" id="nextBtn"></div>
     <img id="lightbox-img" src="" alt="">
     <div id="lightbox-subtitle"></div>
   </div>
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.5</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.51</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
-
-  <div class="footer-hint">Build by cjt | 感谢你的见证</div>
+  <div class="footer-hint">Build By Cjt | 感谢你的见证</div>
 
   <script>
     const galleryData = [
@@ -206,25 +206,20 @@
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxSubtitle = document.getElementById('lightbox-subtitle');
-    const arrows = document.querySelectorAll('.nav-arrow');
 
     galleryData.forEach((item, index) => {
       const card = document.createElement('div');
       card.className = 'photo-card';
-      card.innerHTML = `
-        <img src="${item.src}" alt="" loading="lazy">
-        <div class="photo-desc">${item.text}</div>
-      `;
+      card.innerHTML = `<img src="${item.src}" alt="" loading="lazy"><div class="photo-desc">${item.text}</div>`;
       card.addEventListener('click', () => openLightbox(index));
       galleryContainer.appendChild(card);
     });
 
     function openLightbox(index) {
       currentIndex = index;
-      updateLightboxContentImmediately();
+      updateLightboxImmediately();
       lightbox.style.display = 'flex';
       document.body.style.overflow = 'hidden'; 
-      showHints();
     }
 
     function closeLightbox() {
@@ -232,14 +227,7 @@
       document.body.style.overflow = '';
     }
 
-    function showHints() {
-      arrows.forEach(a => a.style.opacity = '1');
-      setTimeout(() => {
-        arrows.forEach(a => a.style.opacity = '0');
-      }, 2000);
-    }
-
-    function updateLightboxContentImmediately() {
+    function updateLightboxImmediately() {
       const item = galleryData[currentIndex];
       lightboxImg.style.opacity = '1';
       lightboxSubtitle.style.opacity = '1';
@@ -254,18 +242,16 @@
       lightboxSubtitle.style.opacity = '0';
       await new Promise(r => setTimeout(r, 600));
       currentIndex = newIndex;
-      const item = galleryData[currentIndex];
-      lightboxImg.src = item.src;
-      lightboxSubtitle.innerText = item.text;
+      updateLightboxImmediately();
       await new Promise(r => setTimeout(r, 50));
-      lightboxImg.style.opacity = '1';
-      lightboxSubtitle.style.opacity = '1';
-      await new Promise(r => setTimeout(r, 600));
       isTransitioning = false;
     }
 
     const showNext = () => changeSlide((currentIndex + 1) % galleryData.length);
     const showPrev = () => changeSlide((currentIndex - 1 + galleryData.length) % galleryData.length);
+
+    document.getElementById('nextBtn').addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
+    document.getElementById('prevBtn').addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
 
     lightbox.addEventListener('touchstart', (e) => {
       touchstartX = e.changedTouches[0].screenX;
