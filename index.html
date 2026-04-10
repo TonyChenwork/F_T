@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor Gallery | Beta 0.53</title>
+  <title>Wayne Manor Gallery | Beta 0.54</title>
   <style>
     body {
       background-color: #000000;
@@ -164,11 +164,11 @@
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.3</div>
+    <div class="subtitle">Digital Garden Beta 0.54 | 测试</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
-  <div class="footer-hint">Build By Cjt | 感谢你的见证</div>
+  <div class="footer-hint"> DS BY CJT | 感谢你的见证</div>
 
   <script>
     const galleryData = [
@@ -193,10 +193,10 @@
 
     let currentIndex = 0;
     let touchstartX = 0;
-    let startTime = 0;
     let isTransitioning = false;
     let hintTimer = null;
     let isFirstOpenSinceRefresh = true;
+    let swipeLock = false; // 核心防穿透锁
 
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -254,15 +254,28 @@
     document.getElementById('nextBtn').onclick = (e) => { e.stopPropagation(); next(); };
     document.getElementById('prevBtn').onclick = (e) => { e.stopPropagation(); prev(); };
 
-    lightbox.ontouchstart = (e) => { touchstartX = e.changedTouches[0].screenX; startTime = Date.now(); };
+    // --- 统一且安全的事件流控制 ---
+
+    // 1. 触摸滑动监听（手机端专用）
+    lightbox.ontouchstart = (e) => { touchstartX = e.changedTouches[0].screenX; };
     lightbox.ontouchend = (e) => {
       let dx = e.changedTouches[0].screenX - touchstartX;
-      if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
-      else if (Date.now() - startTime < 300 && e.target === lightbox || e.target === lightboxImg) {
-        lightbox.style.display = 'none'; document.body.style.overflow = '';
+      if (Math.abs(dx) > 50) { 
+        swipeLock = true; // 开启防穿透锁：告诉系统这是一次滑动，别当成点击
+        dx < 0 ? next() : prev(); 
+        setTimeout(() => swipeLock = false, 400); // 400毫秒后解锁，完美避开300ms的幽灵点击
       }
     };
 
+    lightbox.onclick = (e) => {
+      if (swipeLock) return; // 如果刚刚滑过，直接无视这次点击
+      if (e.target === lightbox || e.target === lightboxImg) {
+        lightbox.style.display = 'none'; 
+        document.body.style.overflow = '';
+      }
+    };
+
+    // 3. 键盘事件
     window.onkeydown = (e) => {
       if (lightbox.style.display === 'flex') {
         if (e.key === 'ArrowRight') next();
