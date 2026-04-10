@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor | Beta 0.52</title>
+  <title>Wayne Manor | Beta 0.53</title>
   <style>
     body {
       background-color: #000000;
@@ -31,7 +31,7 @@
 
     .subtitle {
       font-size: 0.75rem;
-      color: #555;
+      color: #777;
       letter-spacing: 2px;
     }
 
@@ -164,11 +164,11 @@
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.52</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.3</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
-  <div class="footer-hint">Build with GitHub & Vercel | status: executing</div>
+  <div class="footer-hint">Build with GitHub & Vercel | executes</div>
 
   <script>
     const galleryData = [
@@ -196,6 +196,7 @@
     let startTime = 0;
     let isTransitioning = false;
     let hintTimer = null;
+    let isFirstOpenSinceRefresh = true;
 
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -208,7 +209,6 @@
       lightboxSubtitle.innerText = item.text;
       lightboxImg.style.opacity = '1';
       lightboxSubtitle.style.opacity = '1';
-      flashBtns();
     };
 
     const flashBtns = () => {
@@ -224,6 +224,10 @@
       card.className = 'photo-card';
       card.innerHTML = `<img src="${item.src}" alt="" loading="lazy"><div class="photo-desc">${item.text}</div>`;
       card.onclick = () => {
+        if (isFirstOpenSinceRefresh) {
+          flashBtns();
+          isFirstOpenSinceRefresh = false;
+        }
         currentIndex = i;
         updateLightbox();
         lightbox.style.display = 'flex';
