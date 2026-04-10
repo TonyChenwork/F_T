@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor Gallery | Beta 0.45</title>
+  <title>Wayne Manor | Beta 0.5</title>
   <style>
     body {
       background-color: #000000;
@@ -116,11 +116,26 @@
       line-height: 1.6;
       letter-spacing: 2px;
       font-weight: 300;
-      animation: subtitleFadeIn 1.2s ease;
       pointer-events: none;
       opacity: 1;
       transition: opacity 0.6s ease-in-out;
     }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      user-select: none;
+      transition: opacity 1s ease;
+      font-weight: 100;
+      pointer-events: none;
+    }
+
+    .arrow-left { left: 10px; }
+    .arrow-right { right: 10px; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -130,18 +145,6 @@
     @keyframes cinematicIn {
       from { opacity: 0; }
       to { opacity: 1; }
-    }
-
-    @keyframes subtitleFadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @media (min-width: 768px) {
-      @keyframes subtitleFadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
     }
 
     .footer-hint {
@@ -157,13 +160,15 @@
 <body>
 
   <div id="lightbox">
+    <div class="nav-arrow arrow-left">‹</div>
+    <div class="nav-arrow arrow-right">›</div>
     <img id="lightbox-img" src="" alt="">
     <div id="lightbox-subtitle"></div>
   </div>
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.45</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.5</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
@@ -201,6 +206,7 @@
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxSubtitle = document.getElementById('lightbox-subtitle');
+    const arrows = document.querySelectorAll('.nav-arrow');
 
     galleryData.forEach((item, index) => {
       const card = document.createElement('div');
@@ -209,11 +215,7 @@
         <img src="${item.src}" alt="" loading="lazy">
         <div class="photo-desc">${item.text}</div>
       `;
-      
-      card.addEventListener('click', function() {
-        openLightbox(index);
-      });
-
+      card.addEventListener('click', () => openLightbox(index));
       galleryContainer.appendChild(card);
     });
 
@@ -222,11 +224,19 @@
       updateLightboxContentImmediately();
       lightbox.style.display = 'flex';
       document.body.style.overflow = 'hidden'; 
+      showHints();
     }
 
     function closeLightbox() {
       lightbox.style.display = 'none';
       document.body.style.overflow = '';
+    }
+
+    function showHints() {
+      arrows.forEach(a => a.style.opacity = '1');
+      setTimeout(() => {
+        arrows.forEach(a => a.style.opacity = '0');
+      }, 2000);
     }
 
     function updateLightboxContentImmediately() {
@@ -237,38 +247,25 @@
       lightboxSubtitle.innerText = item.text;
     }
 
-    async function changeSlideWithAnimation(newIndex) {
+    async function changeSlide(newIndex) {
       if (isTransitioning) return;
       isTransitioning = true;
-
       lightboxImg.style.opacity = '0';
       lightboxSubtitle.style.opacity = '0';
-
-      await new Promise(resolve => setTimeout(resolve, 600));
-
+      await new Promise(r => setTimeout(r, 600));
       currentIndex = newIndex;
       const item = galleryData[currentIndex];
       lightboxImg.src = item.src;
       lightboxSubtitle.innerText = item.text;
-
-      await new Promise(resolve => setTimeout(resolve, 50));
-
+      await new Promise(r => setTimeout(r, 50));
       lightboxImg.style.opacity = '1';
       lightboxSubtitle.style.opacity = '1';
-
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise(r => setTimeout(r, 600));
       isTransitioning = false;
     }
 
-    function showNext() {
-      const nextIndex = (currentIndex + 1) % galleryData.length;
-      changeSlideWithAnimation(nextIndex);
-    }
-
-    function showPrev() {
-      const prevIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
-      changeSlideWithAnimation(prevIndex);
-    }
+    const showNext = () => changeSlide((currentIndex + 1) % galleryData.length);
+    const showPrev = () => changeSlide((currentIndex - 1 + galleryData.length) % galleryData.length);
 
     lightbox.addEventListener('touchstart', (e) => {
       touchstartX = e.changedTouches[0].screenX;
@@ -277,24 +274,13 @@
     });
 
     lightbox.addEventListener('touchend', (e) => {
-      let touchendX = e.changedTouches[0].screenX;
-      let touchendY = e.changedTouches[0].screenY;
-      let endTime = new Date().getTime();
-
-      let deltaX = touchendX - touchstartX;
-      let deltaY = touchendY - touchstartY;
-      let deltaTime = endTime - startTime;
-
+      let deltaX = e.changedTouches[0].screenX - touchstartX;
+      let deltaY = e.changedTouches[0].screenY - touchstartY;
+      let deltaTime = new Date().getTime() - startTime;
       if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
-        if (deltaX < 0) {
-          showNext();
-        } else {
-          showPrev();
-        }
+        deltaX < 0 ? showNext() : showPrev();
       } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && deltaTime < 300) {
-        if (e.target === lightbox || e.target === lightboxImg) {
-          closeLightbox();
-        }
+        if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
       }
     });
 
