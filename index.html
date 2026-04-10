@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor | Beta 0.35</title>
+  <title>Wayne Manor | Beta 0.4</title>
   <style>
     body {
       background-color: #000000;
@@ -89,8 +89,9 @@
       background-color: #000000;
       align-items: center;
       justify-content: center;
-      cursor: zoom-out;
+      cursor: auto;
       animation: cinematicIn 0.4s ease;
+      overflow: hidden;
     }
 
     #lightbox img {
@@ -99,6 +100,8 @@
       max-height: 80vh;
       object-fit: contain;
       box-shadow: 0 0 50px rgba(0,0,0,1);
+      cursor: zoom-out;
+      transition: transform 0.2s ease-out, opacity 0.2s ease-out;
     }
 
     #lightbox-subtitle {
@@ -143,19 +146,19 @@
 </head>
 <body>
 
-  <div id="lightbox" onclick="this.style.display='none'">
+  <div id="lightbox">
     <img id="lightbox-img" src="" alt="">
     <div id="lightbox-subtitle"></div>
   </div>
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.35</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.4</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
 
-  <div class="footer-hint">Build with GitHub & Vercel | 感谢你的见证</div>
+  <div class="footer-hint">Build with GitHub & Vercel | status: executing</div>
 
   <script>
     const galleryData = [
@@ -178,12 +181,17 @@
       { src: "images/DSC_3635.webp", text: "一场跨越星辰的暗恋。地球在时间的流沙中，轻吻月球。那一抹血红，是宇宙深处最沉默的温柔。" }
     ];
 
+    let currentIndex = 0;
+    let touchstartX = 0;
+    let touchstartY = 0;
+    let startTime = 0;
+
     const galleryContainer = document.getElementById('gallery');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxSubtitle = document.getElementById('lightbox-subtitle');
 
-    galleryData.forEach(item => {
+    galleryData.forEach((item, index) => {
       const card = document.createElement('div');
       card.className = 'photo-card';
       card.innerHTML = `
@@ -192,12 +200,74 @@
       `;
       
       card.addEventListener('click', function() {
-        lightboxImg.src = item.src;
-        lightboxSubtitle.innerText = item.text;
-        lightbox.style.display = 'flex';
+        openLightbox(index);
       });
 
       galleryContainer.appendChild(card);
+    });
+
+    function openLightbox(index) {
+      currentIndex = index;
+      updateLightboxContent();
+      lightbox.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeLightbox() {
+      lightbox.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function updateLightboxContent() {
+      const item = galleryData[currentIndex];
+      lightboxImg.src = item.src;
+      lightboxSubtitle.innerText = item.text;
+    }
+
+    function showNext() {
+      currentIndex = (currentIndex + 1) % galleryData.length;
+      updateLightboxContent();
+    }
+
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + galleryData.length) % galleryData.length;
+      updateLightboxContent();
+    }
+
+    lightbox.addEventListener('touchstart', (e) => {
+      touchstartX = e.changedTouches[0].screenX;
+      touchstartY = e.changedTouches[0].screenY;
+      startTime = new Date().getTime();
+    });
+
+    lightbox.addEventListener('touchend', (e) => {
+      let touchendX = e.changedTouches[0].screenX;
+      let touchendY = e.changedTouches[0].screenY;
+      let endTime = new Date().getTime();
+
+      let deltaX = touchendX - touchstartX;
+      let deltaY = touchendY - touchstartY;
+      let deltaTime = endTime - startTime;
+
+      if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
+        if (deltaX < 0) {
+          showNext();
+        } else {
+          showPrev();
+        }
+      } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && deltaTime < 300) {
+        if (e.target === lightbox || e.target === lightboxImg) {
+          closeLightbox();
+        }
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (lightbox.style.display === 'flex') {
+        if (e.key === 'ArrowRight') showNext();
+        if (e.key === 'ArrowLeft') showPrev();
+        if (e.key === 'Escape') closeLightbox();
+      }
     });
   </script>
 </body>
