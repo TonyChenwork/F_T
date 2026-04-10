@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor | Beta 0.51</title>
+  <title>Wayne Manor | Beta 0.52</title>
   <style>
     body {
       background-color: #000000;
@@ -108,38 +108,37 @@
       transition: opacity 0.6s ease-in-out;
     }
 
-    /* --- 按钮重做：毛玻璃质感 --- */
     .nav-btn {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       width: 50px;
       height: 50px;
-      background: rgba(255, 255, 255, 0.05); /* 极淡的底色 */
-      backdrop-filter: blur(10px); /* 核心：毛玻璃效果 */
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 10000;
-      transition: all 0.3s ease;
-      -webkit-tap-highlight-color: transparent; /* 消除手机点击蓝框 */
+      opacity: 0;
+      transition: opacity 0.8s ease, transform 0.3s ease;
+      pointer-events: none;
     }
 
-    .nav-btn:active {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-50%) scale(0.9);
+    .nav-btn.show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    /* 按钮内部的箭头符号 */
     .nav-btn::after {
       content: '';
       width: 12px;
       height: 12px;
-      border-top: 2px solid rgba(255, 255, 255, 0.5);
-      border-right: 2px solid rgba(255, 255, 255, 0.5);
+      border-top: 2px solid #fff;
+      border-right: 2px solid #fff;
     }
 
     .btn-left { left: 20px; }
@@ -147,10 +146,6 @@
 
     .btn-right { right: 20px; }
     .btn-right::after { transform: rotate(45deg); margin-right: 4px; }
-
-    @media (max-width: 768px) {
-      .nav-btn { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); } /* 手机端稍微明显一点 */
-    }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes cinematicIn { from { opacity: 0; } to { opacity: 1; } }
@@ -169,11 +164,11 @@
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.51</div>
+    <div class="subtitle">活火山与霓虹彼岸 | Beta 0.52</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
-  <div class="footer-hint">Build By Cjt | 感谢你的见证</div>
+  <div class="footer-hint">Build with GitHub & Vercel | status: executing</div>
 
   <script>
     const galleryData = [
@@ -198,85 +193,79 @@
 
     let currentIndex = 0;
     let touchstartX = 0;
-    let touchstartY = 0;
     let startTime = 0;
     let isTransitioning = false;
+    let hintTimer = null;
 
-    const galleryContainer = document.getElementById('gallery');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxSubtitle = document.getElementById('lightbox-subtitle');
+    const btns = document.querySelectorAll('.nav-btn');
 
-    galleryData.forEach((item, index) => {
+    const updateLightbox = () => {
+      const item = galleryData[currentIndex];
+      lightboxImg.src = item.src;
+      lightboxSubtitle.innerText = item.text;
+      lightboxImg.style.opacity = '1';
+      lightboxSubtitle.style.opacity = '1';
+      flashBtns();
+    };
+
+    const flashBtns = () => {
+      btns.forEach(b => b.classList.add('show'));
+      if(hintTimer) clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => {
+        btns.forEach(b => b.classList.remove('show'));
+      }, 1000);
+    };
+
+    document.getElementById('gallery').append(...galleryData.map((item, i) => {
       const card = document.createElement('div');
       card.className = 'photo-card';
       card.innerHTML = `<img src="${item.src}" alt="" loading="lazy"><div class="photo-desc">${item.text}</div>`;
-      card.addEventListener('click', () => openLightbox(index));
-      galleryContainer.appendChild(card);
-    });
+      card.onclick = () => {
+        currentIndex = i;
+        updateLightbox();
+        lightbox.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      };
+      return card;
+    }));
 
-    function openLightbox(index) {
-      currentIndex = index;
-      updateLightboxImmediately();
-      lightbox.style.display = 'flex';
-      document.body.style.overflow = 'hidden'; 
-    }
-
-    function closeLightbox() {
-      lightbox.style.display = 'none';
-      document.body.style.overflow = '';
-    }
-
-    function updateLightboxImmediately() {
-      const item = galleryData[currentIndex];
-      lightboxImg.style.opacity = '1';
-      lightboxSubtitle.style.opacity = '1';
-      lightboxImg.src = item.src;
-      lightboxSubtitle.innerText = item.text;
-    }
-
-    async function changeSlide(newIndex) {
+    async function slide(newIndex) {
       if (isTransitioning) return;
       isTransitioning = true;
       lightboxImg.style.opacity = '0';
       lightboxSubtitle.style.opacity = '0';
       await new Promise(r => setTimeout(r, 600));
       currentIndex = newIndex;
-      updateLightboxImmediately();
-      await new Promise(r => setTimeout(r, 50));
+      updateLightbox();
+      await new Promise(r => setTimeout(r, 600));
       isTransitioning = false;
     }
 
-    const showNext = () => changeSlide((currentIndex + 1) % galleryData.length);
-    const showPrev = () => changeSlide((currentIndex - 1 + galleryData.length) % galleryData.length);
+    const next = () => slide((currentIndex + 1) % galleryData.length);
+    const prev = () => slide((currentIndex - 1 + galleryData.length) % galleryData.length);
 
-    document.getElementById('nextBtn').addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
-    document.getElementById('prevBtn').addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
+    document.getElementById('nextBtn').onclick = (e) => { e.stopPropagation(); next(); };
+    document.getElementById('prevBtn').onclick = (e) => { e.stopPropagation(); prev(); };
 
-    lightbox.addEventListener('touchstart', (e) => {
-      touchstartX = e.changedTouches[0].screenX;
-      touchstartY = e.changedTouches[0].screenY;
-      startTime = new Date().getTime();
-    });
-
-    lightbox.addEventListener('touchend', (e) => {
-      let deltaX = e.changedTouches[0].screenX - touchstartX;
-      let deltaY = e.changedTouches[0].screenY - touchstartY;
-      let deltaTime = new Date().getTime() - startTime;
-      if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
-        deltaX < 0 ? showNext() : showPrev();
-      } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10 && deltaTime < 300) {
-        if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
+    lightbox.ontouchstart = (e) => { touchstartX = e.changedTouches[0].screenX; startTime = Date.now(); };
+    lightbox.ontouchend = (e) => {
+      let dx = e.changedTouches[0].screenX - touchstartX;
+      if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+      else if (Date.now() - startTime < 300 && e.target === lightbox || e.target === lightboxImg) {
+        lightbox.style.display = 'none'; document.body.style.overflow = '';
       }
-    });
+    };
 
-    window.addEventListener('keydown', (e) => {
+    window.onkeydown = (e) => {
       if (lightbox.style.display === 'flex') {
-        if (e.key === 'ArrowRight') showNext();
-        if (e.key === 'ArrowLeft') showPrev();
-        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') next();
+        if (e.key === 'ArrowLeft') prev();
+        if (e.key === 'Escape') { lightbox.style.display = 'none'; document.body.style.overflow = ''; }
       }
-    });
+    };
   </script>
 </body>
 </html>
