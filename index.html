@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Wayne Manor Gallery | Beta 0.54</title>
   <style>
+    #gallery {
+      min-height: 2000px; /* 强行给画廊 2000 像素的高度 */
+      background: linear-gradient(#cecece6c);
+      border-radius: 10px;
+}
     body {
-      background-color: #000000;
-      color: #ffffff;
+      background-color: #ffffff;
+      color: #000000;
       font-family: 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
       padding: 15px;
@@ -16,13 +21,13 @@
 
     .gallery-header {
       text-align: center;
-      padding: 50px 0 40px 0;
+      padding: 40px 0 40px 0;
       border-bottom: 1px solid #111;
       margin-bottom: 30px;
     }
 
     .hero-title {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       letter-spacing: 6px;
       margin-bottom: 10px;
       font-weight: 300;
@@ -46,66 +51,81 @@
       .masonry-container { column-count: 3; }
     }
 
+        /* 1. 核心卡片容器 */
     .photo-card {
       break-inside: avoid;
       margin-bottom: 15px;
-      background-color: #080808;
-      border-radius: 4px;
-      overflow: hidden;
-      animation: fadeIn 1s ease-out;
-      cursor: zoom-in;
-      transition: all 0.3s ease;
+      background-color: #ffffff; /* 如果你走暗黑风，建议改成 #1a1a1a */
+      border-radius: 12px; /* 调大一点圆角，更有质感 */
+      overflow: hidden; /* 这一行是关键！它会强行剪裁内部所有内容，保住圆角 */
+      display: flex;
+      flex-direction: column; /* 图片在上，文字在下 */
+      transition: transform 0.3s ease;
     }
 
+    /* 2. 图片处理：确保它不会遮挡圆角 */
     .photo-card img {
       width: 100%;
       display: block;
-      filter: contrast(1.1);
+      /* 图片不需要单独设圆角，因为父容器设了 overflow:hidden */
     }
 
+    /* 3. 卷筒式文字层（魔法发生的地方） */
     .photo-desc {
-      padding: 10px;
-      font-size: 0.75rem;
-      color: #666;
-      line-height: 1.4;
-      letter-spacing: 1px;
-      text-align: center;
+      padding: 20px;
+      color: #333;
+      line-height: 1.8;
+      display: flex;
+      justify-content: center; /* 文字居中 */
+      
+      /* 默认：PC端垂直排版 */
+      writing-mode: vertical-rl; /* 垂直方向，从右向左读 */
+      text-orientation: upright; /* 确保汉字是正着的，不是躺下的 */
+      height: 160px; /* 给垂直文字一个固定高度，防止撑破页面 */
+      letter-spacing: 4px; /* 增加呼吸感 */
+      margin: 0 auto;
     }
 
+        /* --- Lightbox 核心容器 --- */
     #lightbox {
-      display: none;
+      display: none; /* 默认隐藏，由 JS 触发 flex 显示 */
       position: fixed;
-      z-index: 9999;
+      z-index: 9999; /* 绝对置顶 */
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background-color: #000000;
+      background-color: rgba(118, 118, 118, 0.97); /* 极深的背景，让照片像在暗房里一样 */
       align-items: center;
       justify-content: center;
-      animation: cinematicIn 0.4s ease;
+      flex-direction: column; /* 让图片和字幕垂直排列 */
+      animation: cinematicIn 0.4s ease; /* 使用你定义的淡入动画 */
+      backdrop-filter: blur(8px); /* 增加背景模糊，让视觉焦点死死锁在图片上 */
     }
 
+    /* --- Lightbox 图片主体 --- */
     #lightbox img {
       display: block;
       max-width: 90%;
-      max-height: 75vh;
+      max-height: 75vh; /* 留出底部空间给字幕 */
       object-fit: contain;
-      box-shadow: 0 0 50px rgba(0,0,0,1);
+      box-shadow: 0 0 80px rgba(0, 0, 0, 1); /* 巨大的外发光阴影，制造悬浮感 */
       transition: opacity 0.6s ease-in-out;
+      border-radius: 2px; /* 给图片一点点微小的圆角，更现代 */
+      border-radius: 14px;
     }
 
+    /* --- 电影感字幕 (Lightbox 专属) --- */
     #lightbox-subtitle {
-      position: absolute;
-      bottom: 8%;
+      margin-top: 30px;
       width: 80%;
-      max-width: 600px;
+      max-width: 800px;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: 1rem;
       color: #f0f0f0;
       line-height: 1.6;
-      letter-spacing: 2px;
+      letter-spacing: 12px; /* 夸张的间距，制造电影字幕的呼吸感 */
       font-weight: 300;
-      pointer-events: none;
-      transition: opacity 0.6s ease-in-out;
+      pointer-events: none; /* 防止字幕挡住点击事件 */
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* 增加文字阴影，防止亮图看不清字 */
     }
 
     .nav-btn {
@@ -165,7 +185,7 @@
 
   <div class="gallery-header">
     <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">Digital Garden Beta 0.54 | 测试</div>
+    <div class="subtitle">Beta 0.54 | 测试</div>
   </div>
 
   <div class="masonry-container" id="gallery"></div>
