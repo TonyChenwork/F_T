@@ -1,0 +1,30 @@
+/* =========================================
+   My Vision 电影级字幕 & 画幅安全排版系统 (修复版)
+========================================= */
+/* 1. 极致纤细的电影感字体 */
+.fancybox__caption {
+    /* 强行调用系统自带的高级衬线体（宋体族） */
+    font-family: "Noto Serif SC", "Songti SC", "STSong", serif !important;
+    font-weight: 300 !important;      /* 核心：把字重降到极细 */
+    font-size: 14px !important;       /* 克制的字号 */
+    letter-spacing: 4px !important;   /* 极端的字间距，抽离感更强 */
+    line-height: 2 !important;        /* 宽裕的行高 */
+    color: #d1d5db !important;        /* 电影片尾字幕的经典灰白 */
+    
+    /* 2. 字幕区的绝对定位（修复底部粘连与残骸问题） */
+    text-align: center !important;
+    
+    /* 顺序为：上 20px, 右 15%, 下 40px, 左 15% */
+    /* 用底部 padding 完美托起字幕，彻底干掉白点残骸 */
+    padding: 0px 15% 40px 10% !important; 
+    
+    /* 防止任何因为字体行高导致的溢出裁切白边 */
+    overflow: visible !important;
+}
+
+/* 3. 为照片设立“禁飞区” */
+.fancybox__slide {
+    /* 配合字幕的抬高，把照片也顺势往上推一点，防止打架 */
+    padding-bottom: 90px !important;  
+    padding-top: 40px !important;     /* 顶部留出呼吸空间 */
+}

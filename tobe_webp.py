@@ -30,7 +30,7 @@ def process_all_images(base_dir='images',quality=80):
 
 if __name__ == '__main__':
     process_all_images()
-   
+
 
                     
 

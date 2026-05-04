@@ -1,325 +1,137 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="scroll-smooth">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wayne Manor Gallery | Beta 0.54</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chenjt - Portfolio</title>
+  <meta name="description" content="Chenjt's Personal Portfolio & Confessions.">
+
+  <!-- 1. 样式表引用：确保路径正确 -->
+  <link rel="icon" type="image/x-icon" href="dist/assets/logo.png" />
+  <link rel="stylesheet" href="dist/output.css" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- 2. 必要库：jQuery, Masonry, Alpine, Fancybox -->
+  <script src="https://cdn.staticfile.net/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://cdn.staticfile.net/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+  <script src="https://cdn.staticfile.net/masonry/4.2.2/masonry.pkgd.min.js"></script>
+  <script defer src="https://cdn.staticfile.net/alpinejs/3.13.3/cdn.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.min.css" />
+  <script src="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.umd.min.js"></script>
+
+  <!-- 3. 解决闪烁的 CSS 补丁 -->
   <style>
-    #gallery {
-      min-height: 2000px; /* 强行给画廊 2000 像素的高度 */
-      background: linear-gradient(#cecece6c);
-      border-radius: 10px;
-}
-    body {
-      background-color: #ffffff;
-      color: #000000;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      margin: 0;
-      padding: 15px;
-      overflow-x: hidden;
-    }
-
-    .gallery-header {
-      text-align: center;
-      padding: 30px 0 40px 0;
-      border-bottom: 1px solid #111;
-      margin-bottom: 30px;
-    }
-
-    .hero-title {
-      font-size: 1.6rem;
-      letter-spacing: 6px;
-      margin-bottom: 10px;
-      font-weight: 300;
-      text-transform: uppercase;
-    }
-
-    .subtitle {
-      font-size: 0.75rem;
-      color: #777;
-      letter-spacing: 2px;
-    }
-
-    .masonry-container {
-      column-count: 2;
-      column-gap: 15px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 768px) {
-      .masonry-container { column-count: 3; }
-    }
-
-        /* 1. 核心卡片容器 */
-    .photo-card {
-      break-inside: avoid;
-      margin-bottom: 15px;
-      background-color: #ffffff; /* 如果你走暗黑风，建议改成 #1a1a1a */
-      border-radius: 12px; /* 调大一点圆角，更有质感 */
-      overflow: hidden; /* 这一行是关键！它会强行剪裁内部所有内容，保住圆角 */
-      display: flex;
-      flex-direction: column; /* 图片在上，文字在下 */
-      transition: transform 0.3s ease;
-    }
-
-    /* 2. 图片处理：确保它不会遮挡圆角 */
-    .photo-card img {
-      width: 100%;
-      display: block;
-      /* 图片不需要单独设圆角，因为父容器设了 overflow:hidden */
-    }
-
-    /* 3. 卷筒式文字层（魔法发生的地方） */
-    .photo-desc {
-      padding: 20px;
-      color: #333;
-      line-height: 1.8;
-      display: flex;
-      justify-content: center; /* 文字居中 */
-      
-      /* 默认：PC端垂直排版 */
-      writing-mode: vertical-rl; /* 垂直方向，从右向左读 */
-      text-orientation: upright; /* 确保汉字是正着的，不是躺下的 */
-      height: 160px; /* 给垂直文字一个固定高度，防止撑破页面 */
-      letter-spacing: 4px; /* 增加呼吸感 */
-      margin: 0 auto;
-    }
-
-        /* --- Lightbox 核心容器 --- */
-    #lightbox {
-      display: none; /* 默认隐藏，由 JS 触发 flex 显示 */
-      position: fixed;
-      z-index: 9999; /* 绝对置顶 */
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(118, 118, 118, 0.97); /* 极深的背景，让照片像在暗房里一样 */
-      align-items: center;
-      justify-content: center;
-      flex-direction: column; /* 让图片和字幕垂直排列 */
-      animation: cinematicIn 0.4s ease; /* 使用你定义的淡入动画 */
-      backdrop-filter: blur(8px); /* 增加背景模糊，让视觉焦点死死锁在图片上 */
-    }
-
-    /* --- Lightbox 图片主体 --- */
-    #lightbox img {
-      display: block;
-      max-width: 90%;
-      max-height: 75vh; /* 留出底部空间给字幕 */
-      object-fit: contain;
-      box-shadow: 0 0 80px rgba(0, 0, 0, 1); /* 巨大的外发光阴影，制造悬浮感 */
-      transition: opacity 0.6s ease-in-out;
-      border-radius: 2px; /* 给图片一点点微小的圆角，更现代 */
-      border-radius: 14px;
-    }
-
-    /* --- 电影感字幕 (Lightbox 专属) --- */
-    #lightbox-subtitle {
-      margin-top: 30px;
-      width: 80%;
-      max-width: 800px;
-      text-align: center;
-      font-size: 1rem;
-      color: #f0f0f0;
-      line-height: 1.6;
-      letter-spacing: 12px; /* 夸张的间距，制造电影字幕的呼吸感 */
-      font-weight: 300;
-      pointer-events: none; /* 防止字幕挡住点击事件 */
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* 增加文字阴影，防止亮图看不清字 */
-    }
-    
-        /* 4. 响应式兼容：手机端自动回归水平 */
-    @media (max-width: 768px) {
-      .photo-desc {
-        writing-mode: horizontal-tb; /* 回归水平排版 */
-        height: auto; /* 高度自适应 */
-        text-align: center;
-        padding: 15px;
-        letter-spacing: 2px; /* 手机端间距稍微收敛一点 */
-        font-size: 0.8rem;
-      }
-    }
-
-    .nav-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 50px;
-      height: 50px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 10000;
-      opacity: 0;
-      transition: opacity 0.8s ease, transform 0.3s ease;
-      pointer-events: none;
-    }
-
-    .nav-btn.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .nav-btn::after {
-      content: '';
-      width: 12px;
-      height: 12px;
-      border-top: 2px solid #fff;
-      border-right: 2px solid #fff;
-    }
-
-    .btn-left { left: 20px; }
-    .btn-left::after { transform: rotate(-135deg); margin-left: 4px; }
-
-    .btn-right { right: 20px; }
-    .btn-right::after { transform: rotate(45deg); margin-right: 4px; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes cinematicIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .footer-hint { text-align: center; font-size: 0.65rem; color: #222; padding: 60px 0 30px 0; letter-spacing: 1px; text-transform: uppercase; }
+    [x-cloak] { display: none !important; }
   </style>
-<script defer src="/_vercel/insights/script.js"></script>
 </head>
-<body>
 
-  <div id="lightbox">
-    <div class="nav-btn btn-left" id="prevBtn"></div>
-    <div class="nav-btn btn-right" id="nextBtn"></div>
-    <img id="lightbox-img" src="" alt="">
-    <div id="lightbox-subtitle"></div>
-  </div>
+<style>
+  /* 💡 核心：配合 x-cloak 彻底消灭微信二维码刷新时的闪现 */
+  [x-cloak] { display: none !important; }
+</style>
 
-  <div class="gallery-header">
-    <div class="hero-title">WAYNE MANOR GALLERY</div>
-    <div class="subtitle">Beta 0.54 | 测试</div>
-  </div>
+<body x-data="{ open: false, showWechat: false }" class="dark:bg-black bg-white min-h-screen flex flex-col text-black dark:text-white px-5 md:px-20 transition duration-500">
 
-  <div class="masonry-container" id="gallery"></div>
-  <div class="footer-hint"> DS BY CJT | 感谢你的见证</div>
+  <!-- ==========================================
+       Navbar (参考你提供的间距参数)
+       ========================================== -->
+  <header class="relative z-20 flex w-full pt-10 pb-1"> <!-- 💡 pt-10 改为 pt-5 (距离减半) -->
+    <nav id="nav" role="navigation" class="w-full">
+      <div class="container mx-auto flex flex-wrap items-center md:flex-no-wrap">
+        
+        <!-- CheN JT -->
+        <div class="mr-4 md:mr-8">
+          <a href="index.html" class="text-2xl font-signika font-bold">CheN JT</a>
+        </div>
 
-  <script>
-    const galleryData = [
-      { src: "images/Tokyo_Tower.webp", text: "所有的跋涉，都是为了抵达这个充满霓虹的彼岸。" },
-      { src: "images/lone_tree_bromo.webp", text: "在世界的边缘，忍受极致的孤独与肃杀。" },
-      { src: "images/Driver_Agung_bromo.webp", text: "在极端环境中，寻找真实的连接。" },
-      { src: "images/DSC_3275.webp", text: "大阪列车站的虚影，都市跳动的脉搏。" },
-      { src: "images/DSC_3393.webp", text: "京都二年坂，时间在这里沉淀出温度。" },
-      { src: "images/Kelingking_Beach.webp", text: "海天一色的绝景，给人以呼吸感。" },
-      { src: "images/DSC_4317.webp", text: "悬崖是陆地对海洋最后的试探，而海浪是时间留下的白边。在这里，连风都屏住了呼吸。" },
-      { src: "images/DSC_4424.webp", text: "慕士塔格的冰川的温柔是默默地看着这颗星球的日落，用千万年的积雪，藏起所有凡人的秘密。" },
-      { src: "images/Monkey_moment.webp", text: "快门按下的那一刻，不需要语言。在这个被框住的瞬间里，生灵的眼底藏着整个野性世界。" },
-      { src: "images/DSC_3549.webp", text: "弧形的玻璃切开光影，像是在等一场新海诚式的阵雨。只要在这个坐标，现实和二次元就只隔着一杯咖啡的距离。" },
-      { src: "images/DSC_3567.webp", text: "当暮色吞没东京湾，千万盏霓虹便开始窃窃私语。这是一座用钢铁和微光折叠起来的梦境迷宫。" },
-      { src: "images/DSC_4125.webp", text: "引擎轰鸣在黑色的火山灰上，像是在另一颗荒芜行星上的流浪。浓雾尽头，是地心沉睡的巨兽。" },
-      { src: "images/R0001257.webp", text: "诸神将未经打磨的钻石随手丢进深海，于是这片蔚蓝有了最锋利的形状。万物在这里，只剩下纯粹的蓝与白。" },
-      { src: "images/DSC_1224.webp", text: "它踩着斑驳的光影巡视自己的领地。墙外是喧嚣的人间，墙上是只属于它的慵懒午后。" },
-      { src: "images/DSC_3371.webp", text: "电线交织着京都的黄昏，灯笼正等待夜的降临。走在这条街上，一不小心就会踩到旧时光的倒影。" },
-      { src: "images/DSC_3552.webp", text: "喧嚣与宁静，只隔着一条街道的距离。" },
-      { src: "images/DSC_3635.webp", text: "一场跨越星辰的暗恋。地球在时间的流沙中，轻吻月球。那一抹血红，是宇宙深处最沉默的温柔。" }
-    ];
+        <!-- 手机端汉堡按钮 -->
+        <div class="ml-auto md:hidden flex items-center justify-start">
+          <button @click="open = !open" 
+            class="tap-highlight-transparent text-black dark:text-white w-5 h-5 relative focus:outline-none">
+            <span class="sr-only">Open main menu</span>
+            <div class="block w-5 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'rotate-45': open,' -translate-y-1.5': !open }"></span>
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'opacity-0': open } "></span>
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'-rotate-45': open, ' translate-y-1.5': !open}"></span>
+            </div>
+          </button>
+        </div>
 
-    let currentIndex = 0;
-    let touchstartX = 0;
-    let isTransitioning = false;
-    let hintTimer = null;
-    let isFirstOpenSinceRefresh = true;
-    let swipeLock = false; // 核心防穿透锁
+        <!-- 💡 菜单容器：使用 Grid 实现高度从 0 到 1fr 的丝滑过渡 -->
+        <div id="menu"
+          class="grid w-full transition-all ease-out duration-500 md:transition-none md:w-auto md:flex-grow md:flex md:items-center"
+          :class="open ? 'grid-rows-[1fr] opacity-100 mt-5' : 'grid-rows-[0fr] opacity-0 md:opacity-100 md:grid-rows-[1fr]'">
+          
+          <div class="overflow-hidden md:overflow-visible">
+            <!-- 💡 这里的间距 md:space-x-5 原封不动保留 -->
+            <ul id="ulMenu"
+              class="flex flex-col md:flex-row md:items-center md:ml-auto md:mt-0 md:pt-0 md:border-0 md:space-x-5 transition-all duration-700"
+              :class="open ? 'translate-y-0' : '-translate-y-4 md:translate-y-0'">
+              
+              <li class="group transition duration-300 py-2 md:py-0">
+                <a href="index.html" class="font-signika text-2xl tap-highlight-transparent">PORTFOLIO
+                  <span class="hidden md:block h-0.5 bg-black dark:bg-white"></span>
+                </a>
+              </li>
+              
+              <li class="group transition duration-300 py-2 md:py-0">
+                <a href="dist/JOURNEY.html" class="font-signika text-2xl tap-highlight-transparent">JOURNEY
+                  <span class="hidden md:block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-black dark:bg-white"></span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
 
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxSubtitle = document.getElementById('lightbox-subtitle');
-    const btns = document.querySelectorAll('.nav-btn');
+  <!-- ==========================================
+       Main Content (照片墙)
+       ========================================== -->
+  <main class="flex-grow pt-10">
+    <div id="gallery-container" class="w-full mx-auto">
+      <!-- gallery.js 会自动填充内容 -->
+    </div>
+  </main>
 
-    const updateLightbox = () => {
-      const item = galleryData[currentIndex];
-      lightboxImg.src = item.src;
-      lightboxSubtitle.innerText = item.text;
-      lightboxImg.style.opacity = '1';
-      lightboxSubtitle.style.opacity = '1';
-    };
+  <!-- ==========================================
+       Footer (微信暗门)
+       ========================================== -->
+  <footer class="w-full relative z-20 border-t border-gray-900 mt-auto">
+    <div class="max-w-4xl mx-auto px-5 py-8 flex flex-col md:flex-row items-center justify-between text-[10px] tracking-[0.2em] uppercase text-gray-600 font-serif">
+      <div><p>© 2026 CheN JT. / All rights reserved.</p></div>
+      <div class="flex items-center space-x-6 cursor-pointer">
+        <a @click.prevent="showWechat = true" class="flex items-center space-x-1.5 cursor-pointer text-gray-500 hover:text-gray-300 transition-colors duration-300">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8.667 3.556c-4.118 0-7.444 2.766-7.444 6.166 0 1.944 1.056 3.667 2.667 4.778-.222.778-.722 2.222-.722 2.222s1.444-.333 2.389-.778c.944.278 2.056.444 3.111.444.111 0 .222 0 .333-.056-.056-.333-.111-.667-.111-1.056 0-3.944 3.722-7.111 8.167-7.111.222 0 .5.056.778.056-1.056-2.611-4.833-4.665-9.166-4.665zm-2.055 3.389c.444 0 .833.389.833.889s-.389.889-.833.889-.833-.389-.833-.889.389-.889.833-.889zm4.278 0c.444 0 .833.389.833.889s-.389.889-.833.889-.833-.389-.833-.889.389-.889.833-.889zm6.166 2.333c-3.667 0-6.611 2.389-6.611 5.389 0 2.945 2.944 5.389 6.611 5.389 1.056 0 2.056-.222 2.944-.556.889.444 2.167.722 2.167.722s-.444-1.278-.611-1.944c1.389-.945 2.167-2.333 2.167-3.834 0-3-2.889-5.166-6.667-5.166zm-1.833 2.333c.389 0 .667.278.667.667s-.278.667-.667.667-.667-.278-.667-.667.278-.667.667-.667zm3.833 0c.389 0 .667.278.667.667s-.278.667-.667.667-.667-.278-.667-.667.278-.667.667-.667z"/></svg>
+          <span class="tracking-[0.2em] font-serif uppercase text-[10px]">MY_WECHAT</span>
+        </a>
+      </div>
+    </div>
 
-    const flashBtns = () => {
-      btns.forEach(b => b.classList.add('show'));
-      if(hintTimer) clearTimeout(hintTimer);
-      hintTimer = setTimeout(() => {
-        btns.forEach(b => b.classList.remove('show'));
-      }, 1000);
-    };
+    <!-- 微信弹窗：挂上 x-cloak 杜绝闪现 -->
+    <div x-show="showWechat" x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md">
+      <div class="absolute inset-0" @click="showWechat = false"></div>
+      <div class="relative z-10 p-4 bg-white rounded-lg shadow-2xl">
+        <img src="images/weixin.webp" alt="QR" class="w-48 h-48 md:w-64 md:h-64 grayscale">
+        <p class="text-center text-black text-[10px] mt-4 font-bold tracking-[0.2em]">SCAN TO CONNECT</p>
+      </div>
+    </div>
+  </footer>
 
-    document.getElementById('gallery').append(...galleryData.map((item, i) => {
-      const card = document.createElement('div');
-      card.className = 'photo-card';
-      card.innerHTML = `<img src="${item.src}" alt="" loading="lazy"><div class="photo-desc">${item.text}</div>`;
-      card.onclick = () => {
-        if (isFirstOpenSinceRefresh) {
-          flashBtns();
-          isFirstOpenSinceRefresh = false;
-        }
-        currentIndex = i;
-        updateLightbox();
-        lightbox.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-      };
-      return card;
-    }));
-
-    async function slide(newIndex) {
-      if (isTransitioning) return;
-      isTransitioning = true;
-      lightboxImg.style.opacity = '0';
-      lightboxSubtitle.style.opacity = '0';
-      await new Promise(r => setTimeout(r, 600));
-      currentIndex = newIndex;
-      updateLightbox();
-      await new Promise(r => setTimeout(r, 600));
-      isTransitioning = false;
-    }
-
-    const next = () => slide((currentIndex + 1) % galleryData.length);
-    const prev = () => slide((currentIndex - 1 + galleryData.length) % galleryData.length);
-
-    document.getElementById('nextBtn').onclick = (e) => { e.stopPropagation(); next(); };
-    document.getElementById('prevBtn').onclick = (e) => { e.stopPropagation(); prev(); };
-
-    // --- 统一且安全的事件流控制 ---
-
-    // 1. 触摸滑动监听（手机端专用）
-    lightbox.ontouchstart = (e) => { touchstartX = e.changedTouches[0].screenX; };
-    lightbox.ontouchend = (e) => {
-      let dx = e.changedTouches[0].screenX - touchstartX;
-      if (Math.abs(dx) > 50) { 
-        swipeLock = true; // 开启防穿透锁：告诉系统这是一次滑动，别当成点击
-        dx < 0 ? next() : prev(); 
-        setTimeout(() => swipeLock = false, 400); // 400毫秒后解锁，完美避开300ms的幽灵点击
-      }
-    };
-
-    lightbox.onclick = (e) => {
-      if (swipeLock) return; // 如果刚刚滑过，直接无视这次点击
-      if (e.target === lightbox || e.target === lightboxImg) {
-        lightbox.style.display = 'none'; 
-        document.body.style.overflow = '';
-      }
-    };
-
-    // 3. 键盘事件
-    window.onkeydown = (e) => {
-      if (lightbox.style.display === 'flex') {
-        if (e.key === 'ArrowRight') next();
-        if (e.key === 'ArrowLeft') prev();
-        if (e.key === 'Escape') { lightbox.style.display = 'none'; document.body.style.overflow = ''; }
-      }
-    };
-  </script>
-  <script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
+  <!-- 必要脚本 -->
+  <script src="gallery.js" defer></script>
 </body>
 </html>

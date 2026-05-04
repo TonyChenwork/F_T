@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Chenjt - Portfolio</title>
+  <meta name="description" content="Chenjt's Personal Portfolio & Confessions.">
+  
+<!-- 1. Logo 就在当前的 assets 文件夹里 -->
+  <link rel="icon" type="image/x-icon" href="assets/logo.png" />
+  
+  <!-- 2. output.css 跟你躺在同一个房间（dist）里，直接喊名字 -->
+  <link rel="stylesheet" href="output.css" />
+  
+  <!-- 3. style.css 被留在了外面的“大厅”（主文件夹），所以要加 ../ 表示“退出去一级”找 -->
+  <link rel="stylesheet" href="../style.css" />
+
+  <script src="https://cdn.staticfile.net/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+  <script src="https://cdn.staticfile.net/masonry/4.2.2/masonry.pkgd.min.js"></script>
+  
+  <script defer src="https://cdn.staticfile.net/alpinejs/3.13.3/cdn.min.js"></script>
+  
+  <link rel="stylesheet" href="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.min.css" />
+  <script src="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.umd.min.js"></script>
+  
+  <script src="https://cdn.staticfile.net/jquery/3.6.3/jquery.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      content: ["./dist/*.{html,js}"],
+      theme: {
+        extend: {
+          fontFamily: {
+            'nothingyoucoulddo': ['Nothing You Could Do', 'cursive'],
+            'signika': ['Signika', 'sans-serif'],
+          },
+        },
+      },
+      plugins: [],
+    }
+  </script>
+</head>
+
+<body
+  class="dark:bg-black bg-white h-screen overflow-hidden flex flex-col text-black dark:text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
+  <!-- Navbar -->
+    <header class="flex w-full overflow-hidden pt-10 pb-1">
+    <!-- Navbar -->
+    <nav id="nav" x-data="{ open: false }" role="navigation" class="w-full">
+      <div class="container mx-auto flex flex-wrap items-center md:flex-no-wrap">
+        <div class="mr-4 md:mr-8">
+          <a href="index.html" class="text-2xl font-signika font-bold">CheN JT</a>
+        </div>
+        <div class="ml-auto md:hidden flex items-center justify-start">
+        <!-- 手机端汉堡按钮 -->
+          <button @click="open = !open" 
+            class="tap-highlight-transparent text-black dark:text-white w-5 h-5 relative focus:outline-none">
+            <span class="sr-only">Open main menu</span>
+            <div class="block w-5 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'rotate-45': open,' -translate-y-1.5': !open }"></span>
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'opacity-0': open } "></span>
+              <span aria-hidden="true"
+                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
+                :class="{'-rotate-45': open, ' translate-y-1.5': !open}"></span>
+            </div>
+          </button>
+        </div>
+      </div>
+        <div id="menu"
+          class="w-full h-0 transition-all ease-out duration-500 md:transition-none md:w-auto md:flex-grow md:flex md:items-center">
+          <ul id="ulMenu"
+            class="flex flex-col duration-300 ease-out md:space-x-5 sm:transition-none mt-5 md:flex-row md:items-center md:ml-auto md:mt-0 md:pt-0 md:border-0">
+            <li class="group transition duration-300">
+              <a href="index.html" class="font-signika text-2xl tap-highlight-transparent">PORTFOLIO
+                <span class="hidden md:block h-0.5 bg-black dark:bg-white"></span>
+              </a>
+            </li>
+            <li class="group transition duration-300">
+              <a href="dist/JOURNEY.html" class="font-signika text-2xl tap-highlight-transparent">JOURNEY
+                <span
+                  class="hidden md:block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-black dark:bg-white"></span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+
+<!-- ==========================================
+     The Journey: 翻页式独白 + 电影感进度条导航 (9页终极版)
+     ========================================== -->
+<!-- ==========================================
+     The Journey: App级排版 (头尾固定，中间沉浸式滑动)
+     ========================================== -->
+<section class="flex-1 flex flex-col w-full max-w-3xl mx-auto pt-6 pb-6 px-5 text-gray-300 overflow-hidden" x-data="{ chapter: 1, total: 9 }">
+
+  <!-- 全局独立背景层 (修复闪烁鬼影) -->
+  <div class="fixed inset-0 -z-10 pointer-events-none transition-opacity duration-1000 ease-in-out opacity-0"
+       :class="chapter === 9 ? 'opacity-100 delay-300' : 'opacity-0 delay-0'">
+    <img src="images/hero1.webp" alt="Batman" class="md:hidden w-full h-full object-cover opacity-20 grayscale blur-[1px]">
+    <img src="images/hero1.webp" alt="Batman" class="hidden md:block w-full h-full object-cover opacity-20 grayscale blur-[1px]">
+  </div>
+
+  <!-- 【固定顶部】：章节指示器 (加入 flex-shrink-0 防止被挤压) -->
+  <div class="relative z-20 flex-shrink-0 flex items-center justify-between mb-8 text-xs tracking-[0.3em] text-gray-500 uppercase border-b border-gray-800 pb-4">
+    <span>Confessions</span>
+    <span x-text="'Chapter 0' + chapter + ' / 0' + total"></span>
+  </div>
+
+  <!-- 【滑动核心区】：只有这里可以上下滑动，且隐藏了滚动条 -->
+  <div class="grid flex-1 overflow-y-auto overflow-x-hidden items-start pb-10 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+
+    <!-- 第 1 页：勇敢的滤镜与莽撞的出发 -->
+    <div x-show="chapter === 1" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 leading-loose text-gray-300">
+        <p>帕米尔高原的风、精灵坠崖边印度洋的浪、泗水闷热街头的车流、以及布罗莫火山夹杂着硫磺味的暴雨……这几年，我把自己的坐标锚定在世界各地的边缘。</p>
+        <p>别人都说我很勇敢，但今天，我想撕开这层勇敢的滤镜，讲讲这背后的故事里，让我印象最深的 3 个。</p>
+        <p>2024年7月22日，我第一次离开浙江独自旅行，去了中国最西边的喀什。第一次坐飞机，什么都不懂，满脑子只有“看雪山”的幼稚冲动。刚拿驾照的我甚至想自驾上帕米尔，幸好最后包了车，躲过了在冰冷高原睡车里的危机。</p>
+      </div>
+    </div>
+
+    <!-- 第 2 页：午夜的惩罚与唯一的证据 -->
+    <div x-show="chapter === 2" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 leading-loose text-gray-300">
+        <p>真正的惩罚在午夜。凌晨一点，严重的急性肠胃炎将我痛醒。浑身脱力，我骑着共享电瓶车，在冷风里强撑着去急诊。</p>
+        <p>挂上盐水时，我满脑子都在崩溃呐喊“立马回家”。但我绝望地意识到：我不可能瞬移，就算现在能瞬间躺在家里的床上，痛苦也不会减少半分。于是我放弃了精神挣扎，坐在惨白的灯光下，默默承受这份痛苦，直到早上七点。</p>
+      </div>
+      <div class="pt-6">
+        <div class="relative inline-block group cursor-pointer">
+          <img src="images/kashi.webp" alt="Classified Evidence" 
+               class="w-32 md:w-48 lg:w-40 h-auto object-cover rounded-sm grayscale opacity-40 border border-gray-800 transition-all duration-700 ease-in-out group-hover:grayscale-0 group-hover:opacity-100 group-hover:border-gray-500 shadow-2xl">
+        </div>
+      </div>
+    </div>
+
+    <!-- 第 3 页：熙熙攘攘的孤独 -->
+    <div x-show="chapter === 3" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 text-gray-300">
+        <p>2024年10月1日，那是我第一次去看海。</p>
+        <p>在去往海边的路上，我满怀期待，想象着它和电影里有什么不同。穿过环岛马路，绕过斑马线，当我终于踏上草坪，看到一望无际的大海时，我看到的也是沙滩上熙熙攘攘的人群——笑着的情侣、朋友和家庭。</p>
+        <p>看着他们脸上洋溢的笑容，那一瞬间，我感觉自己像个格格不入的“怪胎”。我的身体不受控制地退回到草坪上坐下，看着远处的喧闹。</p>
+        <p>那 15 分钟，是我人生中感到最孤独的一段时间。</p>
+      </div>
+    </div>
+
+    <!-- 第 4 页：梦幻与深渊的恐惧 -->
+    <div x-show="chapter === 4" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 text-gray-300">
+        <p>2026年2月底，我第一次独自出国。这是一场极其“梦幻”且狼狈的旅程。</p>
+        <p>听说新加坡樟宜机场“最好睡”，我真信了。结果只找到两张连排椅，我把上半身躺在椅子上，膝盖和小腿架在行李箱上蜷缩着。起初我觉得有失体面，但困意袭来还是妥协了，半睡半醒地熬到了早上六点。</p>
+        <p>后来，在印尼泗水下了飞机，打车前往布罗莫火山。在车里看着窗外完全陌生的赤道景色时，一种巨大的恐惧突然击中了我。我真切地意识到：我一个人，来到了一个环境、文化、语言完全不同的异国他乡。在出发前两周的计划里，我被“看火山”的兴奋冲昏了头脑，竟然完全没有预料到这种深不见底的未知恐惧。</p>
+      </div>
+      <div class="pt-2">
+        <div class="relative inline-block group cursor-pointer">
+          <img src="images/sishui.webp" alt="Classified Evidence" 
+               class="w-40 md:w-64 lg:w-64 h-auto object-cover rounded-sm grayscale opacity-40 border border-gray-800 transition-all duration-700 ease-in-out group-hover:grayscale-0 group-hover:opacity-100 group-hover:border-gray-500 shadow-2xl">
+        </div>
+      </div>
+    </div>
+
+    <!-- 第 5 页：重塑骨肉的铁锤 -->
+    <div x-show="chapter === 5" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 text-gray-300">
+        <p>其实，我并不是什么旅行达人，每次出去依然会像个小孩一样，反复确认上飞机的流程和注意事项。</p>
+        <p>我们太习惯于用精美的风光去掩饰内心的荒芜，却不敢承认，那些狼狈不堪的时刻，才是真正重塑我们骨肉的铁锤。</p>
+        <p>在这几年里我搞砸过，恐惧过，但我没有因为这些停下。恐惧不应该成为我们停止追逐自己想要的东西的理由，不是吗？</p>
+        <p>我有一个梦想：未来当一个环球世界生活的数字游民。</p>
+        <p>这很难。但我正在为此狂热地奋斗。我在自学编程，把脑海中那些看似荒谬的构想，一行行敲成真正的数字产品。我在推演如何用技术为自己加持杠杆，去换取在这个世界上自由行走的底气。</p>
+      </div>
+    </div>
+
+    <!-- 第 6 页：终极宣言 (Call to Action) -->
+    <div x-show="chapter === 6" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
+      <div class="space-y-6 text-gray-300">
+        <p>我不想让你们觉得，这些都是我一个人的故事。其实，我觉得每个人的内心都住着一个“旅行者”，渴望去追逐那些看似遥不可及的梦想，去经历那些看似无法承受的挑战。只是我们太习惯于用“现实”这个词去压抑它了。</p>
+        <p>我想说：不要害怕去追逐那些看似不切实际的梦想，不要害怕去经历那些看似无法承受的挑战。因为在这个过程中，你会发现，真正的勇敢不是没有恐惧，而是带着恐惧去前行。</p>
+        <p>如果你也看过《海贼王》，那你一定听过这句：ONE PIECE是真实存在的！</p>
+        <p>那么，屏幕前的你呢？<br>你的梦想，是什么？</p>
+        <p class="pt-6 text-gray-500 text-xs tracking-[0.3em] uppercase">以下分享三句话：</p>
+      </div>
+    </div>
+
+    <!-- 第 7 页：蝙蝠侠第一句 -->
+    <div x-show="chapter === 7" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full flex flex-col items-center justify-center min-h-[40vh]" x-cloak>
+         <div class="space-y-2 text-center">
+           <p class="text-gray-400 font-serif text-sm md:text-xl lg:text-base tracking-[0.2em] uppercase">"It's not who I am underneath, but what I do that defines me."</p>
+           <p class="text-gray-600 text-xs md:text-sm lg:text-xs tracking-[0.3em] pt-4">你本质是谁并不重要，你所作的事定义了你。</p>
+           <p class="text-gray-700 text-[10px] md:text-xs lg:text-[10px] tracking-[0.3em] uppercase pt-2">— 蝙蝠侠：侠影之谜 (2005)</p>
+         </div>
+    </div>
+
+    <!-- 第 8 页：蝙蝠侠第二句 -->
+    <div x-show="chapter === 8" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full flex flex-col items-center justify-center min-h-[40vh]" x-cloak>
+         <div class="space-y-2 text-center">
+           <p class="text-gray-400 font-serif text-sm md:text-xl lg:text-base tracking-[0.2em] uppercase">"Why do we fall, sir? So that we can learn to pick ourselves up."</p>
+           <p class="text-gray-600 text-xs md:text-sm lg:text-xs tracking-[0.3em] pt-4">我们为什么会跌倒？是为了让自己更好地站起来。</p>
+           <p class="text-gray-700 text-[10px] md:text-xs lg:text-[10px] tracking-[0.3em] uppercase pt-2">— 蝙蝠侠：侠影之谜 (2005)</p>
+         </div>
+    </div>
+
+    <!-- 第 9 页：终极高潮 -->
+    <div x-show="chapter === 9" 
+         x-transition:enter="transition ease-out duration-1000 delay-300"
+         x-transition:enter-start="opacity-0" 
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 w-full h-full relative" x-cloak>
+         <div class="absolute top-[25%] left-0 w-full z-10 space-y-2 text-center px-4">
+           <p class="text-gray-200 font-serif text-sm sm:text-base md:text-2xl lg:text-xl tracking-[0.15em] md:tracking-[0.3em] uppercase whitespace-nowrap shadow-black drop-shadow-2xl">"A hero can be anyone."</p>
+           <p class="text-gray-500 text-[10px] md:text-sm lg:text-[10px] tracking-[0.4em] uppercase pt-4">— 蝙蝠侠：黑暗骑士崛起 (2012)</p>
+         </div>
+    </div>
+  </div>
+
+  <!-- 【固定底部】：全局导航台 (加入 flex-shrink-0 防止被挤压) -->
+  <div class="relative z-20 flex-shrink-0 flex items-center justify-between pt-6 pb-2 text-xs tracking-[0.2em] uppercase border-t border-transparent">
+    <button @click="chapter--; $el.closest('section').querySelector('.overflow-y-auto').scrollTop = 0" 
+            :disabled="chapter === 1"
+            :class="chapter === 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-70 hover:opacity-100 hover:text-white transition'"
+            class="focus:outline-none pb-1 border-b border-transparent hover:border-gray-500">
+      Prev
+    </button>
+    <div class="flex items-center justify-center space-x-3 md:space-x-4">
+      <template x-for="i in total" :key="i">
+        <button @click="chapter = i; $el.closest('section').querySelector('.overflow-y-auto').scrollTop = 0"
+                :class="chapter === i ? 'bg-white w-8 md:w-12 opacity-100' : 'bg-gray-700 w-3 md:w-5 opacity-50 hover:bg-gray-400 hover:w-5 md:hover:w-8'"
+                class="h-[2px] transition-all duration-300 focus:outline-none cursor-pointer">
+        </button>
+      </template>
+    </div>
+    <button @click="chapter++; $el.closest('section').querySelector('.overflow-y-auto').scrollTop = 0" 
+            :disabled="chapter === total"
+            :class="chapter === total ? 'opacity-20 cursor-not-allowed' : 'opacity-70 hover:opacity-100 hover:text-white transition'"
+            class="focus:outline-none pb-1 border-b border-transparent hover:border-gray-500">
+      Next
+    </button>
+  </div>
+</section>
+  <!-- Footer -->
+  <footer>
+
+  </footer>
+  <script src="fade_in.js"></script>
+  <script src="menu.js"></script>
+</body>
+
+</html>
