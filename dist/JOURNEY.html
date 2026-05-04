@@ -50,45 +50,53 @@
     <!-- Navbar -->
     <nav id="nav" x-data="{ open: false }" role="navigation" class="w-full">
       <div class="container mx-auto flex flex-wrap items-center md:flex-no-wrap">
+        
+        <!-- 1. Logo区：退回上一级寻找主页 -->
         <div class="mr-4 md:mr-8">
-          <a href="index.html" class="text-2xl font-signika font-bold">CheN JT</a>
+          <a href="../index.html" class="text-2xl font-signika font-bold">CheN JT</a>
         </div>
+        
+        <!-- 2. 手机端汉堡按钮 -->
         <div class="ml-auto md:hidden flex items-center justify-start">
-        <!-- 手机端汉堡按钮 -->
           <button @click="open = !open" 
             class="tap-highlight-transparent text-black dark:text-white w-5 h-5 relative focus:outline-none">
             <span class="sr-only">Open main menu</span>
             <div class="block w-5 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span aria-hidden="true"
-                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
-                :class="{'rotate-45': open,' -translate-y-1.5': !open }"></span>
-              <span aria-hidden="true"
-                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
-                :class="{'opacity-0': open } "></span>
-              <span aria-hidden="true"
-                class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out"
-                :class="{'-rotate-45': open, ' translate-y-1.5': !open}"></span>
+              <span aria-hidden="true" class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out" :class="{'rotate-45': open,' -translate-y-1.5': !open }"></span>
+              <span aria-hidden="true" class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out" :class="{'opacity-0': open } "></span>
+              <span aria-hidden="true" class="block absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out" :class="{'-rotate-45': open, ' translate-y-1.5': !open}"></span>
             </div>
           </button>
         </div>
-      </div>
+
+        <!-- 3. 💡 核心修复：注入 Alpine.js 的动态高度控制，并应用电脑端靠右对齐 -->
         <div id="menu"
-          class="w-full h-0 transition-all ease-out duration-500 md:transition-none md:w-auto md:flex-grow md:flex md:items-center">
-          <ul id="ulMenu"
-            class="flex flex-col duration-300 ease-out md:space-x-5 sm:transition-none mt-5 md:flex-row md:items-center md:ml-auto md:mt-0 md:pt-0 md:border-0">
-            <li class="group transition duration-300">
-              <a href="index.html" class="font-signika text-2xl tap-highlight-transparent">PORTFOLIO
-                <span class="hidden md:block h-0.5 bg-black dark:bg-white"></span>
-              </a>
-            </li>
-            <li class="group transition duration-300">
-              <a href="dist/JOURNEY.html" class="font-signika text-2xl tap-highlight-transparent">JOURNEY
-                <span
-                  class="hidden md:block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-black dark:bg-white"></span>
-              </a>
-            </li>
-          </ul>
+          class="grid w-full transition-all ease-out duration-500 md:transition-none md:flex md:items-center md:ml-auto md:w-auto"
+          :class="open ? 'grid-rows-[1fr] opacity-100 mt-5' : 'grid-rows-[0fr] opacity-0 md:opacity-100 md:grid-rows-[1fr]'">
+          
+          <div class="overflow-hidden md:overflow-visible">
+            <ul id="ulMenu"
+              class="flex flex-col md:flex-row md:items-center md:mt-0 md:pt-0 md:border-0 md:space-x-8 transition-all duration-700"
+              :class="open ? 'translate-y-0' : '-translate-y-4 md:translate-y-0'">
+              
+              <!-- PORTFOLIO 按钮：未选中状态，加上 hover 特效，点击退回根目录 -->
+              <li class="group transition duration-300 py-2 md:py-0">
+                <a href="../index.html" class="font-signika text-2xl tap-highlight-transparent opacity-60 hover:opacity-100">PORTFOLIO
+                  <span class="hidden md:block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-black dark:bg-white"></span>
+                </a>
+              </li>
+              
+              <!-- JOURNEY 按钮：当前页面选中状态，常驻下划线 -->
+              <li class="group transition duration-300 py-2 md:py-0">
+                <a href="#" class="font-signika text-2xl tap-highlight-transparent">JOURNEY
+                  <span class="hidden md:block h-0.5 bg-black dark:bg-white"></span>
+                </a>
+              </li>
+              
+            </ul>
+          </div>
         </div>
+
       </div>
     </nav>
   </header>
@@ -103,10 +111,11 @@
 <section class="flex-1 flex flex-col w-full max-w-3xl mx-auto pt-6 pb-6 px-5 text-gray-300 overflow-hidden" x-data="{ chapter: 1, total: 9 }">
 
   <!-- 全局独立背景层 (修复闪烁鬼影) -->
-  <div class="fixed inset-0 -z-10 pointer-events-none transition-opacity duration-1000 ease-in-out opacity-0"
+<div class="fixed inset-0 -z-10 pointer-events-none transition-opacity duration-1000 ease-in-out opacity-0"
        :class="chapter === 9 ? 'opacity-100 delay-300' : 'opacity-0 delay-0'">
-    <img src="images/hero1.webp" alt="Batman" class="md:hidden w-full h-full object-cover opacity-20 grayscale blur-[1px]">
-    <img src="images/hero1.webp" alt="Batman" class="hidden md:block w-full h-full object-cover opacity-20 grayscale blur-[1px]">
+    <!-- 删除了滤镜，保留了 w-full h-full object-cover 确保图片铺满全屏不变形 -->
+    <img src="images/hero1.webp" alt="Background" class="md:hidden w-full h-full object-cover">
+    <img src="images/hero1.webp" alt="Background" class="hidden md:block w-full h-full object-cover">
   </div>
 
   <!-- 【固定顶部】：章节指示器 (加入 flex-shrink-0 防止被挤压) -->
@@ -129,7 +138,7 @@
          class="col-start-1 row-start-1 w-full space-y-6 leading-loose text-sm md:text-lg lg:text-base tracking-widest font-serif text-gray-400" x-cloak>
       <div class="space-y-6 leading-loose text-gray-300">
         <p>帕米尔高原的风、精灵坠崖边印度洋的浪、泗水闷热街头的车流、以及布罗莫火山夹杂着硫磺味的暴雨……这几年，我把自己的坐标锚定在世界各地的边缘。</p>
-        <p>别人都说我很勇敢，但今天，我想撕开这层勇敢的滤镜，讲讲这背后的故事里，让我印象最深的 3 个。</p>
+        <p>别人都说我很勇敢，但今天，我想撕开这层勇敢的滤镜，讲讲这背后的3个故事。</p>
         <p>2024年7月22日，我第一次离开浙江独自旅行，去了中国最西边的喀什。第一次坐飞机，什么都不懂，满脑子只有“看雪山”的幼稚冲动。刚拿驾照的我甚至想自驾上帕米尔，幸好最后包了车，躲过了在冰冷高原睡车里的危机。</p>
       </div>
     </div>
@@ -307,7 +316,6 @@
 
   </footer>
   <script src="fade_in.js"></script>
-  <script src="menu.js"></script>
 </body>
 
 </html>
