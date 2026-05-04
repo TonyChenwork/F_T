@@ -134,20 +134,22 @@ const galleryData = [
   },
 ];
 
- document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
   const galleryContainer = document.getElementById('gallery-container');
   if (!galleryContainer) return;
 
-  // 1. 设置标尺，为 Masonry 提供基准
   let htmlContent = '<div class="grid-sizer w-[1%]"></div>';
 
-  // 2. 组装照片数据
-  galleryData.forEach(photo => {
+  // 2. 组装照片数据 (加入懒加载判断)
+  galleryData.forEach((photo, index) => {
     let widthClass = "w-full md:w-1/2"; 
     if (photo.span === "full") widthClass = "w-full";
     else if (photo.span === "three-quarters") widthClass = "w-full md:w-3/4";
     else if (photo.span === "third") widthClass = "w-full md:w-1/3";
     else if (photo.span === "quarter") widthClass = "w-full md:w-1/4";
+
+    // 💡 核心优化 1：前 2 张图立即加载，后面的图加上懒加载属性
+    let lazyAttr = index > 1 ? 'loading="lazy"' : '';
 
     htmlContent += `
       <div class="gallery-item ${widthClass} p-1 md:p-2 float-left">
@@ -155,7 +157,7 @@ const galleryData = [
           <a href="${photo.src}" data-fancybox="gallery" data-caption="${photo.caption || ''}">
             <img alt="${photo.alt || 'Photo'}" 
                  class="block w-full h-auto object-cover opacity-0 transition duration-500 transform hover:scale-105" 
-                 src="${photo.src}">
+                 src="${photo.src}" ${lazyAttr}>
           </a>
         </div>
       </div>
@@ -165,7 +167,7 @@ const galleryData = [
   // 3. 将生成的 HTML 注入容器
   galleryContainer.innerHTML = htmlContent;
 
-  // 4. 🔥 核心修复：一加载完 HTML 就立刻激活 Fancybox，不被网络延迟拖累
+  // 4. 立刻激活 Fancybox
   if (typeof Fancybox !== 'undefined') {
     Fancybox.bind("[data-fancybox]", {
       Thumbs: false,
@@ -175,25 +177,25 @@ const galleryData = [
     });
   }
 
-  // 5. 等图片真正下载完后，再执行 Masonry 排版和淡入特效
+  // 5. 🔥 核心修复：瀑布流进度渲染！
   if (typeof imagesLoaded !== 'undefined') {
-    imagesLoaded(galleryContainer, function() {
-      
-      // 启动砖块排版
-      new Masonry(galleryContainer, {
-        itemSelector: '.gallery-item', 
-        columnWidth: '.grid-sizer', 
-        percentPosition: true          
-      });
+    // 先初始化 Masonry 框架，不干等！
+    var msnry = new Masonry(galleryContainer, {
+      itemSelector: '.gallery-item', 
+      columnWidth: '.grid-sizer', 
+      percentPosition: true          
+    });
 
-      // 启动淡入动画
-      const photos = galleryContainer.querySelectorAll("img");
-      photos.forEach((img, index) => {
-        setTimeout(() => {
-          img.classList.remove("opacity-0");
-          img.classList.add("opacity-100");
-        }, index * 100);
-      });
+    // 💡 核心优化 2：使用 .on('progress')，每下载完一张图，就单独让这张图显现，并重新排版
+    imagesLoaded(galleryContainer).on('progress', function(instance, image) {
+      // 只要有一张图片加载完成（不管成功还是失败），都重新计算一下排版位置，防止图片重叠
+      msnry.layout(); 
+      
+      if (image.isLoaded) {
+        // 单独把这张加载好的图片从黑暗中拉出来（移除透明度）
+        image.img.classList.remove("opacity-0");
+        image.img.classList.add("opacity-100");
+      }
     });
   }
 });
