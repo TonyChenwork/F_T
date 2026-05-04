@@ -41,29 +41,6 @@
       plugins: [],
     }
   </script>
-
-  <!-- ==========================================
-       强行填平 iOS 灵动岛缝隙 & 强制纯黑背景
-       ========================================== -->
-  <style>
-    /* 1. 将 Fancybox 的背景强制设为没有透明度的纯黑 */
-    .fancybox__container {
-      --f-bg: #000000 !important; 
-    }
-    
-    /* 2. 让纯黑色的幕布强行向上、向下延伸，吃掉所有安全区缝隙，但不影响 X 按钮和箭头的正常位置 */
-    .fancybox__backdrop {
-      top: -50px !important;
-      bottom: -50px !important;
-      background: #000000 !important;
-      opacity: 1 !important;
-    }
-    
-    /* 3. 针对 iOS 专属的 dvh (动态视口高度) 优化，确保底部不穿帮 */
-    .fancybox__carousel {
-      height: 100dvh !important;
-    }
-  </style>
 </head>
 
 <body class="bg-black h-screen overflow-hidden flex flex-col text-white px-5 md:px-20 opacity-0 animate-fade-in transition duration-500">
