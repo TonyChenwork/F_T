@@ -22,16 +22,14 @@
   <!-- 3. style.css 被留在了外面的“大厅”（主文件夹），所以要加 ../ 表示“退出去一级”找 -->
   <link rel="stylesheet" href="../style.css" />
 
-  <script src="https://cdn.staticfile.net/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
-  <script src="https://cdn.staticfile.net/masonry/4.2.2/masonry.pkgd.min.js"></script>
+<!-- 2. 内部化核心库：退回上一级目录调用本地库，免疫拦截器 -->
+  <link rel="stylesheet" href="../libs/fancybox.min.css" />
   
-  <script defer src="https://cdn.staticfile.net/alpinejs/3.13.3/cdn.min.js"></script>
-  
-  <link rel="stylesheet" href="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.min.css" />
-  <script src="https://cdn.staticfile.net/fancyapps-ui/5.0.33/fancybox/fancybox.umd.min.js"></script>
-  
-  <script src="https://cdn.staticfile.net/jquery/3.6.3/jquery.min.js"></script>
-
+  <script src="../libs/jquery.min.js"></script>
+  <script src="../libs/imagesloaded.pkgd.min.js"></script>
+  <script src="../libs/masonry.pkgd.min.js"></script>
+  <script defer src="../libs/alpine.min.js"></script>
+  <script src="../libs/fancybox.umd.min.js"></script>
   <script>
     tailwind.config = {
       content: ["./dist/*.{html,js}"],
