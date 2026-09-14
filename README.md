@@ -1,184 +1,149 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
+# CheN JT · 摄影网站使用与更新说明
 
-<a name="readme-top"></a>
+网站目录：`E:\Upwork_Workspace\Projects\F_T`。这是静态网站，内容保存在文件里，不用 MySQL 或 DBeaver，也不需要安装新的依赖或编译。
 
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
+## 平时怎么打开、保存
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
+1. 打开上面的文件夹，双击 `index.html`，浏览器就能显示首页。原来的照片在腾讯云，需要联网才能显示。
+2. 要改内容，右键对应文件，用 VS Code 或记事本打开。不要用 Word 编辑。
+3. 修改前先复制一份对应文件作为备份。修改后按 `Ctrl + S` 保存，编码保持 **UTF-8**，不要把文件后缀改成 `.txt`。
+4. 回到浏览器刷新；如果仍是旧内容，按 `Ctrl + F5`。添加照片后点开大图，添加章节后点一下目录，确认正常。
 
-[![LinkedIn][linkedin-shield]][linkedin-url]
+**本地保存只会修改这台电脑里的网站。** 要让别人访问的线上网站也更新，还需要通过原来的部署方式发布；这次没有推送或部署线上。
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/JoaoFranco03/photography-portfolio">
-    <img src="dist/assets/Logo.jpg" alt="Logo" width="80" height="80">
+## 要改什么，就打开哪个文件
+
+| 需求 | 文件 |
+| --- | --- |
+| 添加照片、改作品标题、地点、说明 | `gallery.js` |
+| 添加文字章节、修改旅行故事 | `dist/JOURNEY.html` |
+| 改首页大标题、介绍、封面 | `index.html` |
+| 改颜色、字号、间距 | `style.css` |
+| 筛选、看图、自动目录等交互 | `site.js`，日常添加内容不用改 |
+
+## 添加一张照片
+
+### 1. 准备照片
+
+可以选其中一种方式：
+
+- **放在网站文件夹里**：在 `F_T` 里新建 `images` 文件夹，把照片放进去，例如 `images/hangzhou-lake.webp`。JPG、PNG 也能用，代码里的扩展名与真实文件一致。发布时要一起上传 `images`。
+- **使用原来的腾讯云图床**：上传后取得能直接显示图片的完整 HTTPS 地址，使用这个地址。
+
+建议用便于辨认的英文文件名。不要在代码里填写 `E:\...` 这种电脑绝对路径，其他访客的电脑没有这个路径。
+
+### 2. 把照片加入清单
+
+打开 `gallery.js`，滚动到最底部，把下面这一整段粘贴到最后的 `];` **上方**。每张照片是一组 `{ ... },`，原照片不要删。
+
+```js
+  {
+    "src": "images/hangzhou-lake.webp",
+    "alt": "傍晚湖边的树与倒影",
+    "caption": "傍晚走过湖边，风刚好停了。",
+    "width": 2560,
+    "height": 1708,
+    "id": "frame-23",
+    "title": "湖边的傍晚",
+    "location": "杭州",
+    "category": "city"
+  },
+```
+
+上面只是填写示例，图片本身需要你准备。逐项替换：
+
+| 项目 | 填什么 |
+| --- | --- |
+| `src` | 实际图片相对路径，或图床的完整网址 |
+| `alt` | 简单描述照片画面，供读屏和图片加载失败时使用 |
+| `caption` | 点击大图后显示的长说明 |
+| `width`、`height` | 图片实际宽、高像素；Windows 右键图片 → 属性 → 详细信息可查看 |
+| `id` | 不重复的照片编号。现在已有 `frame-01` 到 `frame-22`，接下来用 `frame-23`、`frame-24` |
+| `title` | 作品短标题 |
+| `location` | 拍摄地点或适合显示的说明 |
+| `category` | `city` 城市、`life` 人间、`wild` 旷野、`sky` 天体，四选一 |
+
+注意保留英文引号、冒号和逗号。文字中如果需要引号，可以直接用中文“引号”，不要放未转义的英文双引号。
+
+保存并刷新首页，**照片总数和分类数量会自动更新**。照片排列顺序就是清单顺序；把整组 `{ ... },` 移到前面，可以让新作品先显示。
+
+修改旧照片，找到它的 `title` 或 `id`，改相应内容即可。删除照片时删除完整的一组，注意首页封面引用的照片需要先更换封面。
+
+## 添加一个文字章节
+
+1. 打开 `dist/JOURNEY.html`。按 `Ctrl + F` 搜索 **在此行上方添加新章节**。
+2. 在找到的注释那一行上方，粘贴下面完整的章节。不要粘到已有章节的正文里面。
+3. 把标题和每个 `<p>...</p>` 中的文字改为自己的内容，保存并刷新“旅途”页面。
+
+```html
+<section class="chapter" id="chapter-10" aria-labelledby="chapter-title-10">
+  <div class="chapter-kicker">新章节</div>
+  <h2 id="chapter-title-10">这一次，去海边</h2>
+  <div class="chapter-text">
+    <p>这里写第一段。把这句话替换成自己的旅行故事。</p>
+    <p>这里写第二段。每增加一段，就多写一组 p 标签。</p>
+  </div>
+</section>
+```
+
+**目录、章节序号和总章数都会自动更新，不需要修改 `site.js`。** 比如从 9 章加到 10 章，页面会自动显示 `10 CHAPTERS`，原来的 `CHAPTER 01 / 09` 也会变成 `CHAPTER 01 / 10`。
+
+- 现在是 9 章，所以示例用 `chapter-10`。再加一章时，把三个位置里的 `10` 都改成 `11`；每章的 `id` 不能与已有的重复。
+- `h2` 内是章节标题，`p` 内是一段正文。增加段落不需要新增章节。
+- 改旧章节：搜索该章标题，然后修改它的 `h2` 或 `p` 里面的文字即可，目录标题会跟着变。
+- 调整顺序：移动完整的 `<section ...>` 到对应 `</section>` 这一块，显示序号自动重新排列。已有 `id` 建议保留，这样别人收藏的章节链接仍然有效。
+- 不要删掉末尾的 `</div>`、`</section>` 等标签。正文中要显示小于号 `<` 或 `&`，分别写成 `&lt;`、`&amp;`。
+
+### 给章节插入照片
+
+把下面内容放在该章 `<div class="chapter-text">` 内，可以放在两个段落之间：
+
+```html
+<figure class="journal-evidence">
+  <a href="../images/hangzhou-lake.webp" target="_blank" rel="noopener noreferrer">
+    <img src="../images/hangzhou-lake.webp"
+         alt="傍晚的湖面" width="2560" height="1708"
+         loading="lazy" decoding="async">
   </a>
-
-  <h3 align="center">Photography Portfolio</h3>
-
-  <p align="center">
-    A Website created using Tailwind CSS, HTML, CSS <br /> and JavaScript that can be used as a Photography Portfolio.
-    <br />
-    <br />
-    <a href="https://photography-portfolio-joaofranco03.netlify.app/">View Demo</a>
-    <br />
-    <br />
-    
-  </p>
-</div>
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li>
-      <a href="#built-with">Built With</a>
-      <ul>
-        <li><a href="#html-badge">HTML</a></li>
-        <li><a href="#css-badge">CSS</a></li>
-        <li><a href="#js-badge">JavaScript</a></li>
-        <li><a href="#tailwind-badge">Tailwind CSS</a></li>
-      </ul>
-    </li>
-    <li><a href="#quick-start">Quick Start</a></li>
-    <li><a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-<!-- ABOUT THE PROJECT -->
-
-# 📋 About The Project <a name="about-the-project"></a>
-
-[![Product Name Screen Shot][product-screenshot]](https://github.com/JoaoFranco03/photography-portfolio)
-
-This project is a web-based portfolio that beautifully showcases the photography work of Sophia Williams, a fictional photographer. The portfolio was skillfully built using a combination of powerful front-end technologies, including Tailwind CSS, CSS, HTML, and JavaScript.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## 🛠️ Built With <a name="built-with"></a>
-
-- [![HTML][html-badge]][html-url]
-- [![CSS][css-badge]][css-url]
-- [![JavaScript][js-badge]][js-url]
-- [![Tailwind][tailwind-badge]][tailwind-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## 🚀 Quick Start <a name="quick-start"></a>
-
-Create your own page with one click on [Netlify](https://app.netlify.com/signup):
-
-[<img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" />](https://app.netlify.com/start/deploy?repository=https://github.com/JoaoFranco03/photography-portfolio)
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## 🎯 Getting Started <a name="getting-started"></a>
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### 🏗️ Installation <a name="installation"></a>
-
-1. Clone the repo
-
-```sh
- git clone https://github.com/JoaoFranco03/photography-portfolio/.git
+  <figcaption>杭州 · 傍晚的散步</figcaption>
+</figure>
 ```
 
-2.  Run the following command:
+替换两个图片路径、尺寸、画面描述和说明。这里用 `../images/`，因为旅行页面在 `dist` 文件夹里，需要先回到上一级；首页照片清单用的是 `images/`。如果使用图床，两个位置直接填同一个完整 HTTPS 图片网址。
+
+## 修改首页文字、封面和微信
+
+- **首页文字**：在 `index.html` 搜索页面上现有的句子，替换标签之间的文字。`<br>` 是换行。
+- **首页封面**：在 `index.html` 搜索 `featured-frame`。一起更换其中链接的 `href`、图片的 `src`、`alt`、`width`、`height`，以及附近的作品标题和说明。`data-photo-id` 填 `gallery.js` 里对应照片的 `id`，这样点开后显示同一张大图。若希望分享预览也换图，同时更新文件头部的 `og:image`，这里使用公网图片网址。
+- **微信二维码**：首页和旅行页各有一个联系窗口。在 `index.html` 与 `dist/JOURNEY.html` 搜索 `weixin.webp`，修改图片的 `data-src`。两页都要改；本地路径同样注意旅行页需 `../`。
+
+## 看图和阅读操作
+
+- 点照片看完整画幅；点击箭头或按左右键切换；按 `Esc` 或关闭按钮返回。
+- 筛选后，大图窗口只切换当前主题作品；首页封面窗口可以浏览全部作品。
+- 手机可左右滑动照片，保留浏览器缩放；“打开原图”可以查看细节。
+- “联系”显示微信二维码。旅途目录可跳到对应章节，并标记当前阅读位置。
+
+## 预览、发布和备份
+
+双击 `index.html` 可预览。若电脑有 Python，也可以在项目目录打开终端运行：
 
 ```sh
- npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch
+python -m http.server 8765 --bind 127.0.0.1
 ```
-3.  Run the Project in a Server
 
-4.  Change it with your own photos, about me and contact info.
+再访问 `http://127.0.0.1:8765`；关闭终端会停止预览。这种方式下，照片分类会写入地址栏，刷新后仍保留。直接双击打开的文件也能筛选，但刷新会回到全部作品。
 
-5.  Publish it using your preferred hosting platform.
+发布沿用原来的静态网站部署方式，发布整个项目目录。**不要只上传 `dist`**，首页、样式、照片清单、主要脚本都在根目录；如果用了本地照片，也要上传 `images`。
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+平时修改前，可以把整个 `F_T` 文件夹复制为一份带日期的备份；不要在代码中保存图床密钥或账号密码。此次改版前的完整文件备份保存在：
 
-<!-- Ko-fi -->
+`E:\chatgpt_download\2026-09-07\files-pasted-by-the-user-c\photography-original-20260914.zip`
 
-## ☕ Support Me on Ko-fi
+浏览器极少数禁用 JavaScript 的场景：现有 22 张照片有静态备用画廊，9 章正文与目录也可读。新照片若需要出现在备用画廊，需同步更新首页 `<noscript>`；新增章节的正文仍会显示，备用目录和静态章数需手动同步。日常正常启用 JavaScript 时，无需维护这些备用内容。
 
-If you find this project useful, consider supporting me on Ko-fi. Thanks for checking it out!  
+## 来源与许可
 
-<a href="https://ko-fi.com/joaofranco03" target="_blank">
-    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" style="height:40px;">
-</a>
+项目最初基于 João Franco 的 photography-portfolio 模板，原 MIT License 和版权声明保留在 `LICENSE`。照片与个人文字沿用 CheN JT 的现有内容。
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- LICENSE -->
-
-## 📜 License <a name="license"></a>
-
-Distributed under the GPL-3.0 License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTACT -->
-
-## 📧 Contact <a name="contact"></a>
-
-João Franco - https://www.linkedin.com/in/joão-franco-452161195/
-
-Project Link: [https://github.com/JoaoFranco03/photography-portfolio/](https://github.com/JoaoFranco03/photography-portfolio/)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ACKNOWLEDGMENTS -->
-
-## 🌟 Acknowledgments <a name="acknowledgments"></a>
-
-- [FancyBox](https://fancyapps.com/fancybox/)
-- [Unsplash](https://unsplash.com/)
-- [Tailwind Documentation](https://tailwindcss.com/docs/installation)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[tailwind-badge]: https://img.shields.io/badge/Tailwind_CSS-62BAF3?style=for-the-badge&logo=tailwind-css&logoColor=white
-[tailwind-url]: https://tailwindcss.com
-[html-badge]: https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white
-[html-url]: https://developer.mozilla.org/en-US/docs/Web/HTML
-[css-badge]: https://img.shields.io/badge/CSS-239120?&style=for-the-badge&logo=css3&logoColor=white
-[css-url]: https://developer.mozilla.org/en-US/docs/Web/CSS
-[js-badge]: https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black
-[js-url]: https://developer.mozilla.org/en-US/docs/Web/JavaScript
-[license-url]: https://github.com/JoaoFranco03/photography-portfolio/blob/main/LICENSE.md
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://www.linkedin.com/in/joão-franco-452161195/
-[product-screenshot]: dist/assets/mockup.png
+旧 `libs`、Tailwind 配置与构建输出仍保留，但新版页面不再加载。原 Vercel 访问统计在 HTTPS 网站上保留，本地预览不请求它。本次没有执行 Git 提交、推送或线上部署。

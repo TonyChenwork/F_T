@@ -8,6 +8,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // 2. 字体收编：把 HTML 脚本里那段搬过来
+      fontFamily: {
+        'nothingyoucoulddo': ['Nothing You Could Do', 'cursive'],
+        'signika': ['Signika', 'sans-serif'],
+      },
       keyframes: {
         'fade-in': {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
