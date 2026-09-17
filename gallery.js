@@ -1,5 +1,9 @@
 // 在 galleryData 中维护照片，保存并刷新页面即可生效。添加方法见 README.md。
 // 每张照片用一组 { ... }, 表示；可在最后的 ]; 上方粘贴新的一组，id 不要重复。
+// 可新增分类；照片的 category 对应下方的键名，筛选按钮和数量自动生成。
+const galleryCategories = { city: '城市', life: '人间', wild: '旷野', sky: '天体' };
+// 首页封面使用哪张照片：填写下方对应的 id。
+const featuredPhotoId = 'frame-16';
 const galleryData = [
   {
     "src": "https://chenjt-portfolio-1420941215.cos.ap-shanghai.myqcloud.com/images/DSC_1833.webp",

@@ -1463,3 +1463,8 @@ dialog::backdrop {
   }
 }
 
+
+/* Compatibility for data-driven chapters; desktop layout remains unchanged. */
+.chapter-toggle { display: none; }
+.chapter-text p { white-space: pre-line; }
+.journal-evidence img { height: auto; }
